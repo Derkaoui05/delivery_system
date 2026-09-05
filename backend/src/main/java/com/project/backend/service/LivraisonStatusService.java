@@ -14,7 +14,8 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 public class LivraisonStatusService {
-    private static final Map<StatutLivraison, Set<StatutLivraison>> TRANSITIONS = Map.of( StatutLivraison.EN_ATTENTE, Set.of(StatutLivraison.VALIDEE),
+    private static final Map<StatutLivraison, Set<StatutLivraison>> TRANSITIONS = Map.of(
+            StatutLivraison.EN_ATTENTE, Set.of(StatutLivraison.VALIDEE),
             StatutLivraison.VALIDEE, Set.of(StatutLivraison.AFFECTEE),
             StatutLivraison.AFFECTEE, Set.of(StatutLivraison.COLIS_RECUPERE),
             StatutLivraison.COLIS_RECUPERE, Set.of(StatutLivraison.EN_LIVRAISON),
