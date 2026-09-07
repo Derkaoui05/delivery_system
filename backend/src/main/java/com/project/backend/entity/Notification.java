@@ -29,6 +29,7 @@ public class Notification {
     @JoinColumn(name = "recipient_user_id", nullable = false)
     private User recipient;
 
+    @Column(name = "read_flag")
     private boolean read = false;
 
     @CreationTimestamp

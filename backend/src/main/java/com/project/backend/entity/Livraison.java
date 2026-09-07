@@ -29,7 +29,8 @@ public class Livraison {
     @ManyToOne @JoinColumn(name = "livreur_id") // nullable until affectation
     private Livreur livreur;
 
-    @Embedded
+    @ManyToOne
+    @JoinColumn(name = "client_id")
     private Client client; // or @ManyToOne if you want clients reusable across deliveries
 
     private String descriptionColis;

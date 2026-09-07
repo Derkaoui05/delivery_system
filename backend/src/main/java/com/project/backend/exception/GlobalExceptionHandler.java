@@ -68,7 +68,7 @@ public class GlobalExceptionHandler {
     }
 
     // 403 — Spring Security's own denial from @PreAuthorize (different class than the one above)
-    @ExceptionHandler(ForbiddenOperationException.class)
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
     public ResponseEntity<ErrorResponseDTO> handleSpringSecurityAccessDenied(
             org.springframework.security.access.AccessDeniedException ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)

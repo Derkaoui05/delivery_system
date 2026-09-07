@@ -22,8 +22,9 @@ public class StatusHistory {
 
     private String motifEchec;
 
+    @Column(name = "changed_at")
     @CreationTimestamp
-    private LocalDateTime changeAt;
+    private LocalDateTime changedAt;
 
 
 }

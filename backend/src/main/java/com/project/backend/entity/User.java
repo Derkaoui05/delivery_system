@@ -27,6 +27,7 @@ public class User {
 
     private boolean active = true;
 
+    @Column(name = "created_at")
     @CreationTimestamp
     private LocalDateTime createdAt;
 }
