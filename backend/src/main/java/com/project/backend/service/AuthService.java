@@ -3,7 +3,9 @@ package com.project.backend.service;
 import com.project.backend.dto.LoginRequestDTO;
 import com.project.backend.dto.LoginResponseDTO;
 import com.project.backend.dto.RegisterFournisseurDTO;
+import com.project.backend.dto.RegisterLivreurDTO;
 import com.project.backend.entity.Fournisseur;
+import com.project.backend.entity.Livreur;
 import com.project.backend.entity.Role;
 import com.project.backend.entity.User;
 import com.project.backend.repository.FournisseurRepository;
@@ -55,6 +57,26 @@ public class AuthService {
         f.setAdresse(dto.adresse());
         f.setVille(dto.ville());
         fournisseurRepo.save(f);
+    }
+
+    // AuthService.java — add this method
+    public void registerLivreur(RegisterLivreurDTO dto) {
+        if (userRepo.existsByEmail(dto.email())) {
+            throw new IllegalArgumentException("Email déjà utilisé");
+        }
+        User user = new User();
+        user.setEmail(dto.email());
+        user.setPasswordHash(passwordEncoder.encode(dto.password()));
+        user.setRole(Role.LIVREUR);
+        userRepo.save(user);
+
+        Livreur l = new Livreur();
+        l.setUser(user);
+        l.setNom(dto.nom());
+        l.setTelephone(dto.telephone());
+        l.setAdresse(dto.adresse());
+        l.setVille(dto.ville());
+        livreurRepo.save(l);
     }
 
 }
