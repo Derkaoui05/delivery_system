@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
+@Table(name = "livraisons")
 @Getter
 @Setter
 public class Livraison {
@@ -29,7 +30,7 @@ public class Livraison {
     @ManyToOne @JoinColumn(name = "livreur_id") // nullable until affectation
     private Livreur livreur;
 
-    @ManyToOne
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "client_id")
     private Client client; // or @ManyToOne if you want clients reusable across deliveries
 
@@ -39,6 +40,7 @@ public class Livraison {
     private String instructions;
 
     @Enumerated(EnumType.STRING)
+    @Column(length = 30)
     private StatutLivraison statut = StatutLivraison.EN_ATTENTE;
 
     private LocalDate dateSouhaiteeRecuperation;

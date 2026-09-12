@@ -7,6 +7,7 @@ import lombok.Setter;
 import java.util.UUID;
 
 @Entity
+@Table(name = "livreurs")
 @Getter @Setter
 public class Livreur {
     @Id @GeneratedValue(strategy = GenerationType.UUID)
@@ -22,5 +23,6 @@ public class Livreur {
     private String ville;
 
     @Enumerated(EnumType.STRING)
-    private Disponibilite disponibilite  = Disponibilite.DISPONIBLE;
+    @Column(length = 30)
+    private Disponibilite disponibilite = Disponibilite.DISPONIBLE;
 }

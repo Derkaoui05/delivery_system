@@ -10,7 +10,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.nio.file.AccessDeniedException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,7 +24,7 @@ public class GlobalExceptionHandler {
 
     // 403 — driver acting on a delivery not assigned to them, or wrong-owner notification access
     @ExceptionHandler(ForbiddenOperationException.class)
-    public ResponseEntity<ErrorResponseDTO> handleAccessDenied(AccessDeniedException ex) {
+    public ResponseEntity<ErrorResponseDTO> handleForbiddenOperation(ForbiddenOperationException ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(new ErrorResponseDTO(403, "Forbidden", ex.getMessage()));
     }
@@ -78,7 +77,9 @@ public class GlobalExceptionHandler {
     // 500 — catch-all fallback, never leak raw exception messages/stack traces to the client
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDTO> handleGeneric(Exception ex) {
+        ex.printStackTrace();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorResponseDTO(500, "Internal Server Error", "Une erreur inattendue est survenue"));
     }
+
 }

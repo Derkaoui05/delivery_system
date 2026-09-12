@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
+@Table(name = "fournisseurs")
 @Getter @Setter
 public class Fournisseur {
     @Id @GeneratedValue(strategy = GenerationType.UUID)

@@ -19,6 +19,7 @@ public class User {
     @Column(unique = true,  nullable = false)
     private String email;
 
+    @com.fasterxml.jackson.annotation.JsonProperty(access = com.fasterxml.jackson.annotation.JsonProperty.Access.WRITE_ONLY)
     @Column(nullable = false)
     private String passwordHash;
 

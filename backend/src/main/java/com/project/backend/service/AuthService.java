@@ -17,15 +17,17 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class AuthService {
     private final UserRepository userRepo;
     private final FournisseurRepository fournisseurRepo;
     private final LivreurRepository livreurRepo;
     private final PasswordEncoder passwordEncoder;
-    private JwtService jwtService;
+    private final JwtService jwtService;
 
     public LoginResponseDTO login(LoginRequestDTO dto){
         User user = userRepo.findByEmail(dto.email()).orElseThrow(()->new BadCredentialsException("Identifiants invalides"));

@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
+@Table(name = "status_history")
 @Getter @Setter
 public class StatusHistory {
     @Id @GeneratedValue(strategy = GenerationType.UUID)
@@ -18,6 +19,7 @@ public class StatusHistory {
     private Livraison livraison;
 
     @Enumerated(EnumType.STRING)
+    @Column(length = 30)
     private StatutLivraison statut;
 
     private String motifEchec;

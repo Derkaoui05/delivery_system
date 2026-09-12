@@ -20,6 +20,7 @@ public class Notification {
     private Livraison livraison;
 
     @Enumerated(EnumType.STRING)
+    @Column(length = 30)
     private NotificationType type;
 
     @Column(nullable = false)

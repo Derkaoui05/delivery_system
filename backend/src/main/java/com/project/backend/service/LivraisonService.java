@@ -1,9 +1,6 @@
 package com.project.backend.service;
 
-import com.project.backend.dto.AssignDriverDTO;
-import com.project.backend.dto.LivraisonRequestDTO;
-import com.project.backend.dto.LivraisonResponseDTO;
-import com.project.backend.dto.StatusChangeDTO;
+import com.project.backend.dto.*;
 import com.project.backend.entity.*;
 import com.project.backend.exception.ForbiddenOperationException;
 import com.project.backend.mapper.LivraisonMapper;
@@ -12,15 +9,18 @@ import com.project.backend.repository.LivraisonRepository;
 import com.project.backend.repository.LivreurRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class LivraisonService {
     private final LivraisonRepository livraisonRepo;
     private final FournisseurRepository fournisseurRepo;
@@ -122,5 +122,17 @@ public class LivraisonService {
         int year = LocalDate.now().getYear();
         long count = livraisonRepo.count() + 1;
         return String.format("LIV-%d-%06d", year, count);
+    }
+    public DashboardStatsDTO getDashboardStats(){
+        List<Livraison> all = livraisonRepo.findAll();
+
+        Map<String, Long> byStatut = all.stream()
+                .collect(Collectors.groupingBy(l->l.getStatut().name(), Collectors.counting()));
+        return new DashboardStatsDTO(
+                all.size(),
+                byStatut,
+                fournisseurRepo.count(),
+                livreurRepo.count()
+        );
     }
 }
