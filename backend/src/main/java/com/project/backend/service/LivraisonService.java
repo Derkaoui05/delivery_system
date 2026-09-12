@@ -4,9 +4,11 @@ import com.project.backend.dto.*;
 import com.project.backend.entity.*;
 import com.project.backend.exception.ForbiddenOperationException;
 import com.project.backend.mapper.LivraisonMapper;
+import com.project.backend.repository.ClientRepository;
 import com.project.backend.repository.FournisseurRepository;
 import com.project.backend.repository.LivraisonRepository;
 import com.project.backend.repository.LivreurRepository;
+import com.project.backend.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,34 +27,59 @@ public class LivraisonService {
     private final LivraisonRepository livraisonRepo;
     private final FournisseurRepository fournisseurRepo;
     private final LivreurRepository livreurRepo;
+    private final UserRepository userRepo;
+    private final ClientRepository clientRepo;
     private final LivraisonStatusService statusService;
     private final LivraisonMapper mapper;
     private final NotificationService notificationService;
 
     public LivraisonResponseDTO create(UUID fournisseurUserId, LivraisonRequestDTO dto) {
         Fournisseur fournisseur = fournisseurRepo.findByUserId(fournisseurUserId)
-                .orElseThrow(() -> new EntityNotFoundException("Fournisseur introuvable"));
+                .orElseGet(() -> {
+                    User user = userRepo.findById(fournisseurUserId)
+                            .orElseThrow(() -> new EntityNotFoundException("Fournisseur introuvable"));
+                    Fournisseur f = new Fournisseur();
+                    f.setUser(user);
+                    String name = user.getEmail() != null && user.getEmail().contains("@") 
+                            ? user.getEmail().substring(0, user.getEmail().indexOf('@')) 
+                            : "fournisseur";
+                    f.setRaisonSociale("Société " + name);
+                    f.setResponsable(name);
+                    f.setVille(dto.clientVille() != null ? dto.clientVille() : "Casablanca");
+                    f.setAdresse(dto.clientAdresse() != null ? dto.clientAdresse() : "Adresse");
+                    f.setTelephone(dto.clientTelephone() != null ? dto.clientTelephone() : "0600000000");
+                    return fournisseurRepo.save(f);
+                });
 
-        Client client = new Client();
-        client.setNom(dto.clientNom());
-        client.setTelephone(dto.clientTelephone());
-        client.setAdresse(dto.clientAdresse());
-        client.setVille(dto.clientVille());
+        Client client = clientRepo.findByTelephone(dto.clientTelephone())
+                .orElseGet(() -> {
+                    Client c = new Client();
+                    c.setNom(dto.clientNom());
+                    c.setTelephone(dto.clientTelephone());
+                    c.setAdresse(dto.clientAdresse());
+                    c.setVille(dto.clientVille());
+                    return clientRepo.save(c);
+                });
 
         Livraison livraison = new Livraison();
         livraison.setReference(generateReference());
         livraison.setFournisseur(fournisseur);
         livraison.setClient(client);
         livraison.setDescriptionColis(dto.descriptionColis());
-        livraison.setNombreColis(dto.nombreColis());
+        livraison.setNombreColis(dto.nombreColis() != null ? dto.nombreColis() : 1);
         livraison.setPoidsApprox(dto.poidsApprox());
         livraison.setInstructions(dto.instructions());
         livraison.setDateSouhaiteeRecuperation(dto.dateSouhaiteeRecuperation());
         livraison.setDateSouhaiteeLivraison(dto.dateSouhaiteeLivraison());
         livraison.setStatut(StatutLivraison.EN_ATTENTE);
 
-        livraisonRepo.save(livraison);
-        notificationService.notify(livraison, "NOUVELLE_DEMANDE");
+        livraison = livraisonRepo.saveAndFlush(livraison);
+
+        try {
+            notificationService.notify(livraison, "NOUVELLE_DEMANDE");
+        } catch (Exception e) {
+            System.err.println("Warning: notification failed: " + e.getMessage());
+        }
 
         return mapper.toDTO(livraison);
     }
@@ -121,7 +148,12 @@ public class LivraisonService {
     private String generateReference() {
         int year = LocalDate.now().getYear();
         long count = livraisonRepo.count() + 1;
-        return String.format("LIV-%d-%06d", year, count);
+        String ref = String.format("LIV-%d-%06d", year, count);
+        while (livraisonRepo.findByReference(ref).isPresent()) {
+            count++;
+            ref = String.format("LIV-%d-%06d", year, count);
+        }
+        return ref;
     }
     public DashboardStatsDTO getDashboardStats(){
         List<Livraison> all = livraisonRepo.findAll();

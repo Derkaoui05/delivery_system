@@ -74,12 +74,15 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponseDTO(403, "Forbidden", "Vous n'avez pas les droits pour cette action"));
     }
 
-    // 500 — catch-all fallback, never leak raw exception messages/stack traces to the client
+    // 500 — catch-all fallback
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDTO> handleGeneric(Exception ex) {
         ex.printStackTrace();
+        String message = ex.getMessage() != null && !ex.getMessage().isBlank()
+                ? ex.getMessage()
+                : ex.getClass().getSimpleName();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorResponseDTO(500, "Internal Server Error", "Une erreur inattendue est survenue"));
+                .body(new ErrorResponseDTO(500, "Internal Server Error", message));
     }
 
 }
