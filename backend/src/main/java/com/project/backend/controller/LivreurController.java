@@ -3,6 +3,7 @@ package com.project.backend.controller;
 import com.project.backend.config.CurrentUserProvider;
 import com.project.backend.dto.LivraisonResponseDTO;
 import com.project.backend.dto.StatusChangeDTO;
+import com.project.backend.dto.StatusHistoryDTO;
 import com.project.backend.service.LivraisonService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,11 +29,16 @@ public class LivreurController {
         return ResponseEntity.ok(livraisonService.getForLivreur(userId));
     }
 
-    @PutMapping("/livraison/{id}/status")
+    @PutMapping("/livraisons/{id}/status")
     public ResponseEntity<LivraisonResponseDTO> updateStatus(
             @PathVariable UUID id, @Valid @RequestBody StatusChangeDTO dto, Authentication auth
             ){
         UUID userId = currentUser.getCurrentUserId(auth);
         return ResponseEntity.ok(livraisonService.updateStatus(id,userId,dto));
+    }
+
+    @GetMapping("/livraisons/{id}/history")
+    public ResponseEntity<List<StatusHistoryDTO>> getHistory(@PathVariable UUID id, Authentication auth){
+        return ResponseEntity.ok(livraisonService.getStatusHistory(id));
     }
 }

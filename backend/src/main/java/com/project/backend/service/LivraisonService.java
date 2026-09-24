@@ -4,11 +4,7 @@ import com.project.backend.dto.*;
 import com.project.backend.entity.*;
 import com.project.backend.exception.ForbiddenOperationException;
 import com.project.backend.mapper.LivraisonMapper;
-import com.project.backend.repository.ClientRepository;
-import com.project.backend.repository.FournisseurRepository;
-import com.project.backend.repository.LivraisonRepository;
-import com.project.backend.repository.LivreurRepository;
-import com.project.backend.repository.UserRepository;
+import com.project.backend.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -32,6 +28,7 @@ public class LivraisonService {
     private final LivraisonStatusService statusService;
     private final LivraisonMapper mapper;
     private final NotificationService notificationService;
+    private final StatusHistoryRepository statusHistoryRepo;
 
     public LivraisonResponseDTO create(UUID fournisseurUserId, LivraisonRequestDTO dto) {
         Fournisseur fournisseur = fournisseurRepo.findByUserId(fournisseurUserId)
@@ -144,7 +141,13 @@ public class LivraisonService {
         return livraisonRepo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Livraison introuvable"));
     }
-
+    // LivraisonService.java — add this method + inject StatusHistoryRepository
+    public List<StatusHistoryDTO> getStatusHistory(UUID livraisonId) {
+        return statusHistoryRepo.findByLivraison_IdOrderByChangedAtAsc(livraisonId)
+                .stream()
+                .map(h -> new StatusHistoryDTO(h.getStatut().name(), h.getMotifEchec(), h.getChangedAt()))
+                .toList();
+    }
     private String generateReference() {
         int year = LocalDate.now().getYear();
         long count = livraisonRepo.count() + 1;
@@ -166,5 +169,18 @@ public class LivraisonService {
                 fournisseurRepo.count(),
                 livreurRepo.count()
         );
+    }
+
+    private void verifyFournisseurOwnerhip(Livraison livraison, UUID fournisseurUserId){
+        if (!livraison.getFournisseur().getUser().getId().equals(fournisseurUserId)){
+            throw new ForbiddenOperationException("Cette livraison ne vous appartient pas");
+        }
+    }
+
+    public List<StatusHistoryDTO> getStatusHistoryForFournisseur(UUID livraisonId, UUID fournisseurUserId){
+        Livraison livraison = livraisonRepo.findById(livraisonId).orElseThrow(()-> new EntityNotFoundException("Livraison Introuvable"));
+        verifyFournisseurOwnerhip(livraison, fournisseurUserId);
+        return statusHistoryRepo.findByLivraison_IdOrderByChangedAtAsc(livraisonId)
+                .stream().map(h-> new StatusHistoryDTO(h.getStatut().name(), h.getMotifEchec(),h.getChangedAt())).toList();
     }
 }
