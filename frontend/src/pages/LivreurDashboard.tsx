@@ -2,6 +2,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { api } from "../api";
 import Layout from "../components/Layout";
+import StatusHistoryModal from "../components/StatusHistoryModal";
 import { getStatusMeta, LIVREUR_NEXT_STATUS } from "../utils/statusHelpers";
 
 type Livraison = {
@@ -137,6 +138,7 @@ export default function LivreurDashboard() {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [failModal, setFailModal] = useState<FailModal>(null);
+  const [historyTarget, setHistoryTarget] = useState<Livraison | null>(null);
   const [tab, setTab] = useState<"actives" | "historique">("actives");
 
   const load = useCallback(async () => {
@@ -325,6 +327,23 @@ export default function LivreurDashboard() {
                         ✕ Échec
                       </button>
                     )}
+                    <button
+                      className="btn btn-ghost btn-sm"
+                      onClick={() => setHistoryTarget(l)}
+                      title="Voir l'historique"
+                    >
+                      📋
+                    </button>
+                  </div>
+                )}
+                {!isActive && (
+                  <div style={{ marginTop: 14 }}>
+                    <button
+                      className="btn btn-ghost btn-sm w-full"
+                      onClick={() => setHistoryTarget(l)}
+                    >
+                      📋 Voir l'historique
+                    </button>
                   </div>
                 )}
               </div>
@@ -339,6 +358,14 @@ export default function LivreurDashboard() {
           livraison={failModal.livraison}
           onClose={() => setFailModal(null)}
           onConfirm={(motif) => handleFail(failModal.livraison.id, motif)}
+        />
+      )}
+      {/* History modal */}
+      {historyTarget && (
+        <StatusHistoryModal
+          reference={historyTarget.reference}
+          fetchHistory={() => api.livreurGetHistory(historyTarget.id)}
+          onClose={() => setHistoryTarget(null)}
         />
       )}
     </Layout>

@@ -59,7 +59,7 @@ public class AdminController {
         authService.registerLivreur(dto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
-    @GetMapping("/livreurs")
+    @GetMapping("/fournisseurs")
     public ResponseEntity<List<FournisseurResponseDTO>> listFournisseurs(
             @RequestParam(required = false) String ville,
             @RequestParam(required = false) Boolean active) {

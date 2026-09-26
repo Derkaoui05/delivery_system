@@ -22,6 +22,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('FOURNISSEUR')")
 public class FournisseurController {
+
     private final LivraisonService livraisonService;
     private final CurrentUserProvider currentUser;
 

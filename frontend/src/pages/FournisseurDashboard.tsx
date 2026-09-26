@@ -2,6 +2,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { api } from "../api";
 import Layout from "../components/Layout";
+import StatusHistoryModal from "../components/StatusHistoryModal";
 import { getStatusMeta } from "../utils/statusHelpers";
 
 type Livraison = {
@@ -62,6 +63,7 @@ export default function FournisseurDashboard() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [historyTarget, setHistoryTarget] = useState<Livraison | null>(null);
 
   const set = (k: keyof FormData, v: string | number) =>
     setForm((f) => ({ ...f, [k]: v }));
@@ -182,6 +184,7 @@ export default function FournisseurDashboard() {
                     <th>Colis</th>
                     <th>Livreur</th>
                     <th>Livraison souhaitée</th>
+                    <th>Historique</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -189,7 +192,16 @@ export default function FournisseurDashboard() {
                     const meta = getStatusMeta(l.status);
                     return (
                       <tr key={l.id}>
-                        <td><span className="td-primary text-mono">{l.reference}</span></td>
+                        <td>
+                          <button
+                            className="btn btn-ghost btn-sm"
+                            style={{ fontFamily: "monospace", fontSize: 12, padding: "4px 8px" }}
+                            onClick={() => setHistoryTarget(l)}
+                            title="Voir l'historique"
+                          >
+                            {l.reference} 📋
+                          </button>
+                        </td>
                         <td>
                           <span className={`badge ${meta.badgeClass}`}>
                             <span className="badge-dot" />
@@ -203,6 +215,15 @@ export default function FournisseurDashboard() {
                         </td>
                         <td>{l.livreurNom || <span className="text-muted">—</span>}</td>
                         <td>{formatDate(l.dateSouhaiteeLivraison)}</td>
+                        <td>
+                          <button
+                            className="btn btn-ghost btn-sm"
+                            style={{ fontSize: 11 }}
+                            onClick={() => setHistoryTarget(l)}
+                          >
+                            📋 Voir
+                          </button>
+                        </td>
                       </tr>
                     );
                   })}
@@ -397,6 +418,13 @@ export default function FournisseurDashboard() {
             </div>
           </form>
         </div>
+      )}
+      {historyTarget && (
+        <StatusHistoryModal
+          reference={historyTarget.reference}
+          fetchHistory={() => api.fournisseurGetHistory(historyTarget.id)}
+          onClose={() => setHistoryTarget(null)}
+        />
       )}
     </Layout>
   );

@@ -20,6 +20,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('LIVREUR')")
 public class LivreurController {
+
+
     private final LivraisonService livraisonService;
     private final CurrentUserProvider currentUser;
 
@@ -29,6 +31,7 @@ public class LivreurController {
         return ResponseEntity.ok(livraisonService.getForLivreur(userId));
     }
 
+
     @PutMapping("/livraisons/{id}/status")
     public ResponseEntity<LivraisonResponseDTO> updateStatus(
             @PathVariable UUID id, @Valid @RequestBody StatusChangeDTO dto, Authentication auth
@@ -37,8 +40,10 @@ public class LivreurController {
         return ResponseEntity.ok(livraisonService.updateStatus(id,userId,dto));
     }
 
+
     @GetMapping("/livraisons/{id}/history")
     public ResponseEntity<List<StatusHistoryDTO>> getHistory(@PathVariable UUID id, Authentication auth){
         return ResponseEntity.ok(livraisonService.getStatusHistory(id));
     }
+
 }

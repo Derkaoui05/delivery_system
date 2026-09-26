@@ -2,6 +2,7 @@
 import { useAuth } from "../AuthContext";
 import { useNavigate } from "react-router-dom";
 import type { ReactNode } from "react";
+import NotificationBell from "./NotificationBell";
 
 interface NavItem {
   id: string;
@@ -121,6 +122,7 @@ export default function Layout({ children, title, subtitle, navItems, topbarRigh
           </div>
           <div className="topbar-right">
             {topbarRight}
+            <NotificationBell />
             <div className="avatar">{initials}</div>
           </div>
         </header>
