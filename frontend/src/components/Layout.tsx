@@ -1,7 +1,7 @@
 // src/components/Layout.tsx
-import { useAuth } from "../AuthContext";
-import { useNavigate } from "react-router-dom";
 import type { ReactNode } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import NotificationBell from "./NotificationBell";
 
 interface NavItem {

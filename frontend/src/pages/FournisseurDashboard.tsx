@@ -5,18 +5,8 @@ import Layout from "../components/Layout";
 import StatusHistoryModal from "../components/StatusHistoryModal";
 import { getStatusMeta } from "../utils/statusHelpers";
 
-type Livraison = {
-  id: string;
-  reference: string;
-  status: string;
-  clientNom: string;
-  clientVille: string;
-  descriptionColis: string;
-  livreurNom: string | null;
-  dateSouhaiteeRecuperation: string | null;
-  dateSouhaiteeLivraison: string | null;
-  createdAt: string;
-};
+import type { Livraison } from "../types";
+import { formatDate } from "../utils/date";
 
 type FormData = {
   descriptionColis: string;
@@ -50,10 +40,6 @@ const defaultForm: FormData = {
 
 type Tab = "livraisons" | "nouvelle";
 
-function formatDate(str: string | null) {
-  if (!str) return "—";
-  try { return new Date(str).toLocaleDateString("fr-FR"); } catch { return str; }
-}
 
 export default function FournisseurDashboard() {
   const [tab, setTab] = useState<Tab>("livraisons");

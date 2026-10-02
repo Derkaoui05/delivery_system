@@ -1,16 +1,10 @@
-// src/components/StatusHistoryModal.tsx
 import { useEffect, useState } from "react";
 import { getStatusMeta } from "../utils/statusHelpers";
-
-type HistoryEntry = {
-  statut: string;
-  motifEchec: string | null;
-  changeAt: string;
-};
+import type { StatusHistory } from "../types";
 
 interface Props {
   reference: string;
-  fetchHistory: () => Promise<HistoryEntry[]>;
+  fetchHistory: () => Promise<StatusHistory[]>;
   onClose: () => void;
 }
 
@@ -26,7 +20,7 @@ function formatDateTime(str: string) {
 }
 
 export default function StatusHistoryModal({ reference, fetchHistory, onClose }: Props) {
-  const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [history, setHistory] = useState<StatusHistory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 

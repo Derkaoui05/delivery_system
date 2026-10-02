@@ -1,15 +1,7 @@
-// src/components/NotificationBell.tsx
 import { useEffect, useState, useRef } from "react";
 import { api } from "../api";
+import type { Notification } from "../types";
 
-type Notif = {
-  id: string;
-  message: string;
-  read: boolean;
-  createdAt: string;
-  type: string;
-  livraison?: { reference?: string };
-};
 
 function timeAgo(dateStr: string) {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -22,7 +14,7 @@ function timeAgo(dateStr: string) {
 }
 
 export default function NotificationBell() {
-  const [notifs, setNotifs] = useState<Notif[]>([]);
+  const [notifs, setNotifs] = useState<Notification[]>([]);
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 

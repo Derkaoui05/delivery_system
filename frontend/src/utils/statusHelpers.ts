@@ -1,13 +1,7 @@
 // src/utils/statusHelpers.ts
 
-export type StatutLivraison =
-  | "EN_ATTENTE"
-  | "VALIDEE"
-  | "AFFECTEE"
-  | "COLIS_RECUPERE"
-  | "EN_LIVRAISON"
-  | "LIVREE"
-  | "ECHEC_LIVRAISON";
+import type { StatutLivraison } from "../types";
+export type { StatutLivraison };
 
 interface StatusMeta {
   label: string;

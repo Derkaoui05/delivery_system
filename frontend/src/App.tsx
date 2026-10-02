@@ -1,10 +1,10 @@
 // src/App.tsx
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider, useAuth } from "./AuthContext";
-import Login from "./pages/Login";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 import AdminDashboard from "./pages/AdminDashboard";
 import FournisseurDashboard from "./pages/FournisseurDashboard";
 import LivreurDashboard from "./pages/LivreurDashboard";
+import Login from "./pages/Login";
 
 function Protected({ role, children }: { role: string; children: React.ReactNode }) {
   const { auth } = useAuth();
