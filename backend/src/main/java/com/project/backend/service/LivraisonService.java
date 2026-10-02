@@ -171,16 +171,34 @@ public class LivraisonService {
         );
     }
 
-    private void verifyFournisseurOwnerhip(Livraison livraison, UUID fournisseurUserId){
-        if (!livraison.getFournisseur().getUser().getId().equals(fournisseurUserId)){
+    private void verifyFournisseurOwnership(Livraison livraison, UUID fournisseurUserId) {
+        if (!livraison.getFournisseur().getUser().getId().equals(fournisseurUserId)) {
             throw new ForbiddenOperationException("Cette livraison ne vous appartient pas");
         }
     }
 
-    public List<StatusHistoryDTO> getStatusHistoryForFournisseur(UUID livraisonId, UUID fournisseurUserId){
-        Livraison livraison = livraisonRepo.findById(livraisonId).orElseThrow(()-> new EntityNotFoundException("Livraison Introuvable"));
-        verifyFournisseurOwnerhip(livraison, fournisseurUserId);
+    public List<StatusHistoryDTO> getStatusHistoryForFournisseur(UUID livraisonId, UUID fournisseurUserId) {
+        Livraison livraison = livraisonRepo.findById(livraisonId)
+                .orElseThrow(() -> new EntityNotFoundException("Livraison introuvable"));
+        verifyFournisseurOwnership(livraison, fournisseurUserId);
+
         return statusHistoryRepo.findByLivraison_IdOrderByChangedAtAsc(livraisonId)
-                .stream().map(h-> new StatusHistoryDTO(h.getStatut().name(), h.getMotifEchec(),h.getChangedAt())).toList();
+                .stream()
+                .map(h -> new StatusHistoryDTO(h.getStatut().name(), h.getMotifEchec(), h.getChangedAt()))
+                .toList();
+    }
+
+    public List<StatusHistoryDTO> getStatusHistoryForLivreur(UUID livraisonId, UUID livreurUserId) {
+        Livraison livraison = livraisonRepo.findById(livraisonId)
+                .orElseThrow(() -> new EntityNotFoundException("Livraison introuvable"));
+
+        if (livraison.getLivreur() == null || !livraison.getLivreur().getUser().getId().equals(livreurUserId)) {
+            throw new ForbiddenOperationException("Cette livraison ne vous est pas affectée");
+        }
+
+        return statusHistoryRepo.findByLivraison_IdOrderByChangedAtAsc(livraisonId)
+                .stream()
+                .map(h -> new StatusHistoryDTO(h.getStatut().name(), h.getMotifEchec(), h.getChangedAt()))
+                .toList();
     }
 }

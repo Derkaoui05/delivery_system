@@ -41,7 +41,7 @@ public class FournisseurController {
     }
 
     @GetMapping("/livraisons/{id}/history")
-    public ResponseEntity<List<StatusHistoryDTO>> getHistory(@PathVariable UUID id, Authentication auth){
+    public ResponseEntity<List<StatusHistoryDTO>> getHistory(@PathVariable UUID id, Authentication auth) {
         UUID userId = currentUser.getCurrentUserId(auth);
         return ResponseEntity.ok(livraisonService.getStatusHistoryForFournisseur(id, userId));
     }
