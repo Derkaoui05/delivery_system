@@ -1,14 +1,16 @@
 package com.project.backend.service;
 
 
+import com.project.backend.dto.NotificationResponseDTO;
 import com.project.backend.entity.*;
 import com.project.backend.exception.ForbiddenOperationException;
+import com.project.backend.mapper.NotificationMapper;
 import com.project.backend.repository.NotificationRepository;
 import com.project.backend.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -16,10 +18,12 @@ import java.util.UUID;
 // service/NotificationService.java
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class NotificationService {
 
     private final NotificationRepository notificationRepo;
     private final UserRepository userRepo;
+    private final NotificationMapper mapper;
 
     public void notify(Livraison livraison, String typeKey) {
         NotificationType type = NotificationType.valueOf(typeKey);
@@ -64,10 +68,17 @@ public class NotificationService {
                 notifyUser(admin, livraison, type, message));
     }
 
-    public List<Notification> getForUser(UUID userId, boolean unreadOnly) {
-        return unreadOnly
+    @Transactional(readOnly = true)
+    public List<NotificationResponseDTO> getForUser(UUID userId, boolean unreadOnly) {
+        List<Notification> notifications = unreadOnly
                 ? notificationRepo.findByRecipient_IdAndReadFalseOrderByCreatedAtDesc(userId)
                 : notificationRepo.findByRecipient_IdOrderByCreatedAtDesc(userId);
+        return notifications.stream().map(mapper::toDTO).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public long getUnreadCount(UUID userId) {
+        return notificationRepo.countByRecipient_IdAndReadFalse(userId);
     }
 
     public void markAsRead(UUID notificationId, UUID userId) {
@@ -79,5 +90,11 @@ public class NotificationService {
         }
         n.setRead(true);
         notificationRepo.save(n);
+    }
+
+    public void markAllAsRead(UUID userId) {
+        List<Notification> unread = notificationRepo.findByRecipient_IdAndReadFalseOrderByCreatedAtDesc(userId);
+        unread.forEach(n -> n.setRead(true));
+        notificationRepo.saveAll(unread);
     }
 }

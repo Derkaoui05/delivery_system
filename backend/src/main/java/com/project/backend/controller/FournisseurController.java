@@ -2,9 +2,7 @@ package com.project.backend.controller;
 
 
 import com.project.backend.config.CurrentUserProvider;
-import com.project.backend.dto.LivraisonRequestDTO;
-import com.project.backend.dto.LivraisonResponseDTO;
-import com.project.backend.dto.StatusHistoryDTO;
+import com.project.backend.dto.*;
 import com.project.backend.service.LivraisonService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -40,9 +38,21 @@ public class FournisseurController {
         return ResponseEntity.ok(livraisonService.getForFournisseur(userId));
     }
 
+    @GetMapping("/livraisons/{id}")
+    public ResponseEntity<LivraisonDetailDTO> getLivraisonDetail(@PathVariable UUID id, Authentication auth) {
+        UUID userId = currentUser.getCurrentUserId(auth);
+        return ResponseEntity.ok(livraisonService.getDetailForFournisseur(id, userId));
+    }
+
     @GetMapping("/livraisons/{id}/history")
     public ResponseEntity<List<StatusHistoryDTO>> getHistory(@PathVariable UUID id, Authentication auth) {
         UUID userId = currentUser.getCurrentUserId(auth);
         return ResponseEntity.ok(livraisonService.getStatusHistoryForFournisseur(id, userId));
+    }
+
+    @GetMapping("/dashboard")
+    public ResponseEntity<FournisseurDashboardDTO> getDashboard(Authentication auth) {
+        UUID userId = currentUser.getCurrentUserId(auth);
+        return ResponseEntity.ok(livraisonService.getFournisseurDashboard(userId));
     }
 }

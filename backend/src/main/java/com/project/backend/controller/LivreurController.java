@@ -1,9 +1,7 @@
 package com.project.backend.controller;
 
 import com.project.backend.config.CurrentUserProvider;
-import com.project.backend.dto.LivraisonResponseDTO;
-import com.project.backend.dto.StatusChangeDTO;
-import com.project.backend.dto.StatusHistoryDTO;
+import com.project.backend.dto.*;
 import com.project.backend.service.LivraisonService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +19,6 @@ import java.util.UUID;
 @PreAuthorize("hasRole('LIVREUR')")
 public class LivreurController {
 
-
     private final LivraisonService livraisonService;
     private final CurrentUserProvider currentUser;
 
@@ -31,6 +28,11 @@ public class LivreurController {
         return ResponseEntity.ok(livraisonService.getForLivreur(userId));
     }
 
+    @GetMapping("/livraisons/{id}")
+    public ResponseEntity<LivraisonDetailDTO> getMissionDetail(@PathVariable UUID id, Authentication auth) {
+        UUID userId = currentUser.getCurrentUserId(auth);
+        return ResponseEntity.ok(livraisonService.getDetailForLivreur(id, userId));
+    }
 
     @PutMapping("/livraisons/{id}/status")
     public ResponseEntity<LivraisonResponseDTO> updateStatus(
@@ -40,11 +42,15 @@ public class LivreurController {
         return ResponseEntity.ok(livraisonService.updateStatus(id,userId,dto));
     }
 
-
     @GetMapping("/livraisons/{id}/history")
     public ResponseEntity<List<StatusHistoryDTO>> getHistory(@PathVariable UUID id, Authentication auth) {
         UUID userId = currentUser.getCurrentUserId(auth);
         return ResponseEntity.ok(livraisonService.getStatusHistoryForLivreur(id, userId));
     }
 
+    @GetMapping("/dashboard")
+    public ResponseEntity<LivreurDashboardDTO> getDashboard(Authentication auth) {
+        UUID userId = currentUser.getCurrentUserId(auth);
+        return ResponseEntity.ok(livraisonService.getLivreurDashboard(userId));
+    }
 }

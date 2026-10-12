@@ -11,20 +11,25 @@ import com.project.backend.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class FournisseurService {
     private final FournisseurRepository fournisseurRepo;
     private final UserRepository userRepo;
     private final FournisseurMapper mapper;
 
+    @Transactional(readOnly = true)
     public List<FournisseurResponseDTO> search(String ville, Boolean active){
         return fournisseurRepo.search(ville,active).stream().map(mapper::toDTO).toList();
     }
+
+    @Transactional(readOnly = true)
     public FournisseurResponseDTO getById(UUID id) {
         return mapper.toDTO(getOrThrow(id));
     }

@@ -7,12 +7,14 @@ import com.project.backend.entity.StatutLivraison;
 import com.project.backend.repository.StatutHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class LivraisonStatusService {
     private static final Map<StatutLivraison, Set<StatutLivraison>> TRANSITIONS = Map.of(
             StatutLivraison.EN_ATTENTE, Set.of(StatutLivraison.VALIDEE),

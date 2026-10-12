@@ -38,6 +38,8 @@ public class Livraison {
     private Integer nombreColis;
     private Double poidsApprox;
     private String instructions;
+    private String instructionsLivraison;
+    private String commentaire;
 
     @Enumerated(EnumType.STRING)
     @Column(length = 30)

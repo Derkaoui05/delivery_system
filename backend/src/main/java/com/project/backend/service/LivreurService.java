@@ -12,23 +12,31 @@ import com.project.backend.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class LivreurService {
 
     private final LivreurRepository livreurRepo;
     private final UserRepository userRepo;
     private final LivreurMapper mapper;
 
+    @Transactional(readOnly = true)
     public List<LivreurResponseDTO> search(Disponibilite disponibilite) {
         List<Livreur> livreurs = disponibilite != null
                 ? livreurRepo.findByDisponibilite(disponibilite)
                 : livreurRepo.findAll();
         return livreurs.stream().map(mapper::toDTO).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public LivreurResponseDTO getById(UUID id) {
+        return mapper.toDTO(getOrThrow(id));
     }
 
     public LivreurResponseDTO update(UUID id, LivreurUpdateDTO dto) {
