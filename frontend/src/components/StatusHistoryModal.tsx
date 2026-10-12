@@ -3,7 +3,8 @@ import { getStatusMeta } from "../utils/statusHelpers";
 import type { StatusHistory } from "../types";
 
 interface Props {
-  reference: string;
+  reference?: string;
+  livraison?: { reference: string };
   fetchHistory: () => Promise<StatusHistory[]>;
   onClose: () => void;
 }
@@ -19,8 +20,10 @@ function formatDateTime(str: string) {
   }
 }
 
-export default function StatusHistoryModal({ reference, fetchHistory, onClose }: Props) {
+export default function StatusHistoryModal({ reference, livraison, fetchHistory, onClose }: Props) {
+  const displayRef = reference || livraison?.reference || "Livraison";
   const [history, setHistory] = useState<StatusHistory[]>([]);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -43,7 +46,7 @@ export default function StatusHistoryModal({ reference, fetchHistory, onClose }:
         <div className="modal-header">
           <div>
             <div className="modal-title">📋 Historique des statuts</div>
-            <div style={{ fontSize: 12, color: "var(--brand-500)", fontFamily: "monospace", marginTop: 2 }}>{reference}</div>
+            <div style={{ fontSize: 12, color: "var(--brand-500)", fontFamily: "monospace", marginTop: 2 }}>{displayRef}</div>
           </div>
           <button className="btn btn-ghost btn-icon" onClick={onClose}>✕</button>
         </div>

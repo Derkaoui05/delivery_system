@@ -1,8 +1,9 @@
 // src/components/Layout.tsx
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import NotificationBell from "./NotificationBell";
+import ChangePasswordModal from "./ChangePasswordModal";
 
 interface NavItem {
   id: string;
@@ -46,6 +47,8 @@ export default function Layout({ children, title, subtitle, navItems, topbarRigh
   const { auth, logout } = useAuth();
   const navigate = useNavigate();
   const cfg = roleConfig[role];
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -62,12 +65,12 @@ export default function Layout({ children, title, subtitle, navItems, topbarRigh
           <div className="sidebar-logo-icon">🚚</div>
           <div>
             <div className="sidebar-logo-text">DeliverPro</div>
-            <div className="sidebar-logo-sub">Gestion livraisons</div>
+            <div className="sidebar-logo-sub">Gestion logistique</div>
           </div>
         </div>
 
         <nav className="sidebar-nav">
-          <div className="nav-section-label">Navigation</div>
+          <div className="nav-section-label">Menu Principal</div>
           {navItems.map((item) => (
             <button
               key={item.id}
@@ -95,16 +98,27 @@ export default function Layout({ children, title, subtitle, navItems, topbarRigh
             }}
           >
             <span style={{ fontSize: 18 }}>{cfg.icon}</span>
-            <div>
+            <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: cfg.color }}>{cfg.label}</div>
-              <div style={{ fontSize: 11, color: "var(--text-muted)" }}>Connecté</div>
+              <div style={{ fontSize: 11, color: "var(--text-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                Session active
+              </div>
             </div>
           </div>
 
           <button
+            type="button"
+            className="btn btn-ghost w-full"
+            style={{ fontSize: 12, marginBottom: 6, justifyContent: "flex-start" }}
+            onClick={() => setShowChangePassword(true)}
+          >
+            <span>🔒</span> Mot de passe
+          </button>
+
+          <button
             id="btn-logout"
             className="btn btn-ghost w-full"
-            style={{ fontSize: 13 }}
+            style={{ fontSize: 12, justifyContent: "flex-start", color: "var(--red)" }}
             onClick={handleLogout}
           >
             <span>↩</span> Se déconnecter
@@ -120,16 +134,68 @@ export default function Layout({ children, title, subtitle, navItems, topbarRigh
             <div className="topbar-title">{title}</div>
             {subtitle && <div className="topbar-subtitle">{subtitle}</div>}
           </div>
-          <div className="topbar-right">
+          <div className="topbar-right" style={{ position: "relative" }}>
             {topbarRight}
             <NotificationBell />
-            <div className="avatar">{initials}</div>
+
+            <div style={{ position: "relative" }}>
+              <div
+                className="avatar"
+                style={{ cursor: "pointer" }}
+                onClick={() => setShowUserMenu(!showUserMenu)}
+                title="Options profil"
+              >
+                {initials}
+              </div>
+
+              {showUserMenu && (
+                <div
+                  style={{
+                    position: "absolute",
+                    right: 0,
+                    top: "100%",
+                    marginTop: 8,
+                    background: "var(--surface-2)",
+                    border: "1px solid var(--border)",
+                    borderRadius: "var(--radius-md)",
+                    boxShadow: "var(--shadow-lg)",
+                    minWidth: 180,
+                    zIndex: 100,
+                    padding: 6,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 4,
+                  }}
+                  onMouseLeave={() => setShowUserMenu(false)}
+                >
+                  <button
+                    className="btn btn-ghost btn-sm"
+                    style={{ justifyContent: "flex-start", fontSize: 12 }}
+                    onClick={() => {
+                      setShowUserMenu(false);
+                      setShowChangePassword(true);
+                    }}
+                  >
+                    🔒 Changer mot de passe
+                  </button>
+                  <button
+                    className="btn btn-ghost btn-sm"
+                    style={{ justifyContent: "flex-start", fontSize: 12, color: "var(--red)" }}
+                    onClick={handleLogout}
+                  >
+                    ↩ Déconnexion
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </header>
 
         {/* Content */}
         <div className="page-content">{children}</div>
       </main>
+
+      {showChangePassword && <ChangePasswordModal onClose={() => setShowChangePassword(false)} />}
     </div>
   );
 }

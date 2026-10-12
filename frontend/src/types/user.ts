@@ -81,3 +81,41 @@ export interface LoginResponse {
   userId?: string;
   email?: string;
 }
+
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface ResetPasswordRequest {
+  token: string;
+  newPassword: string;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export interface AuditLog {
+  id: string;
+  action: string;
+  entityType?: string;
+  entityId?: string;
+  details?: string;
+  ipAddress?: string;
+  createdAt: string;
+  user?: {
+    id: string;
+    email: string;
+    role: string;
+  };
+}
+
+export interface PageResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+}
+

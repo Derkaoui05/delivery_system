@@ -60,3 +60,30 @@ export interface StatusChangeRequest {
   newStatut: StatutLivraison | string;
   motifEchec?: string;
 }
+
+export interface LivraisonDetail extends Livraison {
+  fournisseurTelephone?: string;
+  fournisseurAdresse?: string;
+  fournisseurVille?: string;
+  livreurTelephone?: string;
+  statusHistory?: StatusHistory[];
+}
+
+export interface FournisseurDashboardStats {
+  totalLivraisons: number;
+  livraisonsByStatut: Record<string, number>;
+  enAttente: number;
+  enCours: number;
+  livrees: number;
+  echouees: number;
+}
+
+export interface LivreurDashboardStats {
+  totalMissions: number;
+  missionsByStatut: Record<string, number>;
+  affectees: number;
+  enCours: number;
+  livrees: number;
+  echouees: number;
+}
+

@@ -1,10 +1,19 @@
 // src/api/livreur.ts
 import { request } from "./client";
-import type { Livraison, StatusHistory, StatutLivraison } from "../types";
+import type { 
+  Livraison, 
+  LivraisonDetail, 
+  StatusHistory, 
+  StatutLivraison, 
+  LivreurDashboardStats 
+} from "../types";
 
 export const livreurApi = {
   myLivraisonsLivreur: (): Promise<Livraison[]> =>
     request<Livraison[]>("/livreur/livraisons"),
+
+  getDeliveryDetail: (id: string): Promise<LivraisonDetail> =>
+    request<LivraisonDetail>(`/livreur/livraisons/${id}`),
 
   updateStatus: (id: string, newStatut: StatutLivraison | string, motifEchec?: string): Promise<Livraison> =>
     request<Livraison>(`/livreur/livraisons/${id}/status`, {
@@ -14,4 +23,7 @@ export const livreurApi = {
 
   livreurGetHistory: (id: string): Promise<StatusHistory[]> =>
     request<StatusHistory[]>(`/livreur/livraisons/${id}/history`),
+
+  getLivreurDashboard: (): Promise<LivreurDashboardStats> =>
+    request<LivreurDashboardStats>("/livreur/dashboard"),
 };
