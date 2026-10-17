@@ -1,5 +1,6 @@
 // src/components/admin/CreateLivreurModal.tsx
 import { useState } from "react";
+import { UserPlus, X, AlertCircle } from "lucide-react";
 import { api } from "../../api";
 import type { RegisterLivreurRequest } from "../../types";
 
@@ -32,7 +33,7 @@ export default function CreateLivreurModal({ onClose, onSuccess }: CreateLivreur
       onSuccess();
       onClose();
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || "Erreur lors de la création du compte livreur");
     } finally {
       setLoading(false);
     }
@@ -40,18 +41,37 @@ export default function CreateLivreurModal({ onClose, onSuccess }: CreateLivreur
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
+      <div className="modal" style={{ maxWidth: 520 }} onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <span className="modal-title">➕ Créer un livreur</span>
-          <button className="btn btn-ghost btn-icon" onClick={onClose}>✕</button>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div
+              style={{
+                width: 34,
+                height: 34,
+                borderRadius: "var(--radius-sm)",
+                background: "var(--brand-surface)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "var(--brand-400)",
+              }}
+            >
+              <UserPlus size={18} strokeWidth={2} />
+            </div>
+            <h3 className="modal-title">Créer un profil livreur</h3>
+          </div>
+          <button className="btn btn-ghost btn-icon" onClick={onClose} aria-label="Fermer">
+            <X size={16} strokeWidth={2} />
+          </button>
         </div>
+
         <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <div className="form-grid">
             <div className="form-group">
               <label className="form-label">Nom complet *</label>
               <input
                 className="form-input"
-                placeholder="Jean Dupont"
+                placeholder="Ex. Youssef El Amrani"
                 value={form.nom}
                 onChange={(e) => set("nom", e.target.value)}
                 required
@@ -61,66 +81,82 @@ export default function CreateLivreurModal({ onClose, onSuccess }: CreateLivreur
               <label className="form-label">Téléphone *</label>
               <input
                 className="form-input"
-                placeholder="06 00 00 00 00"
+                placeholder="0612345678"
                 value={form.telephone}
                 onChange={(e) => set("telephone", e.target.value)}
                 required
               />
             </div>
           </div>
+
           <div className="form-group">
-            <label className="form-label">E-mail *</label>
+            <label className="form-label">Adresse e-mail professionnelle *</label>
             <input
               className="form-input"
               type="email"
-              placeholder="jean@livraison.com"
+              placeholder="youssef@livraison.com"
               value={form.email}
               onChange={(e) => set("email", e.target.value)}
               required
             />
           </div>
+
           <div className="form-group">
-            <label className="form-label">Mot de passe *</label>
+            <label className="form-label">Mot de passe initial (min. 8 car.) *</label>
             <input
               className="form-input"
               type="password"
-              placeholder="••••••••"
+              placeholder="••••••••••••"
               value={form.password}
               onChange={(e) => set("password", e.target.value)}
               required
             />
           </div>
+
           <div className="form-grid">
             <div className="form-group">
-              <label className="form-label">Adresse</label>
+              <label className="form-label">Adresse de base</label>
               <input
                 className="form-input"
-                placeholder="Rue..."
+                placeholder="Rue, quartier..."
                 value={form.adresse}
                 onChange={(e) => set("adresse", e.target.value)}
               />
             </div>
             <div className="form-group">
-              <label className="form-label">Ville *</label>
+              <label className="form-label">Ville de rattachement *</label>
               <input
                 className="form-input"
-                placeholder="Casablanca"
+                placeholder="Ex. Casablanca"
                 value={form.ville}
                 onChange={(e) => set("ville", e.target.value)}
                 required
               />
             </div>
           </div>
-          {error && <div className="alert alert-error">⚠ {error}</div>}
-          <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+
+          {error && (
+            <div className="alert alert-error">
+              <AlertCircle size={15} strokeWidth={2} />
+              <span>{error}</span>
+            </div>
+          )}
+
+          <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 8 }}>
             <button type="button" className="btn btn-ghost" onClick={onClose}>
               Annuler
             </button>
-            <button type="submit" className="btn btn-primary" disabled={loading}>
+            <button type="submit" className="btn btn-primary" disabled={loading} style={{ gap: 6 }}>
               {loading ? (
-                <span className="spinner" style={{ width: 14, height: 14 }} />
+                <>
+                  <span className="spinner" />
+                  <span>Création...</span>
+                </>
               ) : (
-                "Créer le livreur"
+                <>
+                  <UserPlus size={14} strokeWidth={2} />
+                  <span>Enregistrer le livreur</span>
+                </>
               )}
             </button>
           </div>

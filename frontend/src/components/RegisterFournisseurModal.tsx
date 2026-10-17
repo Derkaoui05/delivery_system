@@ -1,5 +1,6 @@
 // src/components/RegisterFournisseurModal.tsx
 import { useState } from "react";
+import { Building2, X, AlertCircle, ArrowRight } from "lucide-react";
 import { api } from "../api";
 
 interface RegisterFournisseurModalProps {
@@ -36,33 +37,52 @@ export default function RegisterFournisseurModal({ onClose, onSuccess }: Registe
       await api.registerFournisseur(form);
       onSuccess(form.email);
     } catch (err: any) {
-      setError(err.message || "Erreur lors de l'inscription.");
+      setError(err.message || "Erreur lors de l'enregistrement du compte fournisseur.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
+    <div className="modal-overlay" onClick={onClose}>
       <div
-        className="modal-card"
-        style={{ maxWidth: 540, width: "95%", maxHeight: "90vh", display: "flex", flexDirection: "column" }}
+        className="modal"
+        style={{ maxWidth: 560, width: "95%", maxHeight: "90vh", display: "flex", flexDirection: "column" }}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="modal-header">
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <span style={{ fontSize: 20 }}>🏭</span>
-            <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0, color: "var(--text-primary)" }}>
-              Inscription Fournisseur
-            </h3>
+            <div
+              style={{
+                width: 34,
+                height: 34,
+                borderRadius: "var(--radius-sm)",
+                background: "var(--emerald-surface)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "var(--emerald-400)",
+              }}
+            >
+              <Building2 size={18} strokeWidth={2} />
+            </div>
+            <div>
+              <h3 className="modal-title">Inscription Fournisseur / Expéditeur</h3>
+              <p style={{ fontSize: 11.5, color: "var(--text-muted)", margin: 0 }}>
+                Créez votre compte pour déléguer et suivre vos expéditions
+              </p>
+            </div>
           </div>
-          <button className="btn-close" onClick={onClose}>✕</button>
+          <button className="btn btn-ghost btn-icon" onClick={onClose} aria-label="Fermer">
+            <X size={16} strokeWidth={2} />
+          </button>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ padding: 20, overflowY: "auto", display: "flex", flexDirection: "column", gap: 12 }}>
+        <form onSubmit={handleSubmit} style={{ overflowY: "auto", display: "flex", flexDirection: "column", gap: 14 }}>
           {error && (
-            <div className="alert alert-error" style={{ fontSize: 13, padding: "8px 12px" }}>
-              <span>⚠️</span> {error}
+            <div className="alert alert-error">
+              <AlertCircle size={15} strokeWidth={2} />
+              <span>{error}</span>
             </div>
           )}
 
@@ -72,7 +92,7 @@ export default function RegisterFournisseurModal({ onClose, onSuccess }: Registe
               <input
                 type="text"
                 className="form-input"
-                placeholder="Ex. Maroc Tech SARL"
+                placeholder="Ex. Atlas Distribution SARL"
                 value={form.raisonSociale}
                 onChange={(e) => set("raisonSociale", e.target.value)}
                 required
@@ -93,18 +113,18 @@ export default function RegisterFournisseurModal({ onClose, onSuccess }: Registe
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             <div className="form-group">
-              <label className="form-label">Adresse e-mail *</label>
+              <label className="form-label">Adresse e-mail professionnelle *</label>
               <input
                 type="email"
                 className="form-input"
-                placeholder="contact@societe.ma"
+                placeholder="contact@atlas.ma"
                 value={form.email}
                 onChange={(e) => set("email", e.target.value)}
                 required
               />
             </div>
             <div className="form-group">
-              <label className="form-label">Téléphone *</label>
+              <label className="form-label">Téléphone de contact *</label>
               <input
                 type="tel"
                 className="form-input"
@@ -118,11 +138,11 @@ export default function RegisterFournisseurModal({ onClose, onSuccess }: Registe
 
           <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 12 }}>
             <div className="form-group">
-              <label className="form-label">Adresse siège *</label>
+              <label className="form-label">Adresse du siège / entrepôt *</label>
               <input
                 type="text"
                 className="form-input"
-                placeholder="Ex. 45 Bd Zerktouni"
+                placeholder="Ex. 45 Boulevard Zerktouni"
                 value={form.adresse}
                 onChange={(e) => set("adresse", e.target.value)}
                 required
@@ -141,11 +161,11 @@ export default function RegisterFournisseurModal({ onClose, onSuccess }: Registe
           </div>
 
           <div className="form-group">
-            <label className="form-label">Mot de passe (min. 8 car.) *</label>
+            <label className="form-label">Mot de passe sécurisé (min. 8 car.) *</label>
             <input
               type="password"
               className="form-input"
-              placeholder="••••••••"
+              placeholder="••••••••••••"
               value={form.password}
               onChange={(e) => set("password", e.target.value)}
               required
@@ -153,11 +173,21 @@ export default function RegisterFournisseurModal({ onClose, onSuccess }: Registe
           </div>
 
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 10 }}>
-            <button type="button" className="btn btn-secondary" onClick={onClose} disabled={loading}>
+            <button type="button" className="btn btn-ghost" onClick={onClose} disabled={loading}>
               Annuler
             </button>
-            <button type="submit" className="btn btn-primary" disabled={loading}>
-              {loading ? "Création du compte..." : "Créer mon compte"}
+            <button type="submit" className="btn btn-primary" disabled={loading} style={{ gap: 6 }}>
+              {loading ? (
+                <>
+                  <span className="spinner" />
+                  <span>Création du compte...</span>
+                </>
+              ) : (
+                <>
+                  <span>Créer mon compte</span>
+                  <ArrowRight size={14} strokeWidth={2} />
+                </>
+              )}
             </button>
           </div>
         </form>

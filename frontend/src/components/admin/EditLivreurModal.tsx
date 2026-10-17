@@ -1,5 +1,6 @@
 // src/components/admin/EditLivreurModal.tsx
 import { useState } from "react";
+import { Edit3, X, AlertCircle, Check } from "lucide-react";
 import { api } from "../../api";
 import type { Livreur, UpdateLivreurRequest } from "../../types";
 
@@ -31,7 +32,7 @@ export default function EditLivreurModal({ livreur, onClose, onSuccess }: EditLi
       onSuccess();
       onClose();
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || "Erreur lors de la mise à jour du livreur");
     } finally {
       setLoading(false);
     }
@@ -39,14 +40,33 @@ export default function EditLivreurModal({ livreur, onClose, onSuccess }: EditLi
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
+      <div className="modal" style={{ maxWidth: 520 }} onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <span className="modal-title">✏️ Modifier le livreur</span>
-          <button className="btn btn-ghost btn-icon" onClick={onClose}>✕</button>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div
+              style={{
+                width: 34,
+                height: 34,
+                borderRadius: "var(--radius-sm)",
+                background: "var(--brand-surface)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "var(--brand-400)",
+              }}
+            >
+              <Edit3 size={18} strokeWidth={2} />
+            </div>
+            <div>
+              <h3 className="modal-title">Modifier le profil livreur</h3>
+              <div style={{ fontSize: 11.5, color: "var(--text-muted)" }}>{livreur.email}</div>
+            </div>
+          </div>
+          <button className="btn btn-ghost btn-icon" onClick={onClose} aria-label="Fermer">
+            <X size={16} strokeWidth={2} />
+          </button>
         </div>
-        <div style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 14 }}>
-          {livreur.email}
-        </div>
+
         <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <div className="form-grid">
             <div className="form-group">
@@ -68,9 +88,10 @@ export default function EditLivreurModal({ livreur, onClose, onSuccess }: EditLi
               />
             </div>
           </div>
+
           <div className="form-grid">
             <div className="form-group">
-              <label className="form-label">Adresse</label>
+              <label className="form-label">Adresse de base</label>
               <input
                 className="form-input"
                 value={form.adresse}
@@ -78,7 +99,7 @@ export default function EditLivreurModal({ livreur, onClose, onSuccess }: EditLi
               />
             </div>
             <div className="form-group">
-              <label className="form-label">Ville *</label>
+              <label className="form-label">Ville de rattachement *</label>
               <input
                 className="form-input"
                 value={form.ville}
@@ -87,16 +108,29 @@ export default function EditLivreurModal({ livreur, onClose, onSuccess }: EditLi
               />
             </div>
           </div>
-          {error && <div className="alert alert-error">⚠ {error}</div>}
-          <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+
+          {error && (
+            <div className="alert alert-error">
+              <AlertCircle size={15} strokeWidth={2} />
+              <span>{error}</span>
+            </div>
+          )}
+
+          <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 8 }}>
             <button type="button" className="btn btn-ghost" onClick={onClose}>
               Annuler
             </button>
-            <button type="submit" className="btn btn-primary" disabled={loading}>
+            <button type="submit" className="btn btn-primary" disabled={loading} style={{ gap: 6 }}>
               {loading ? (
-                <span className="spinner" style={{ width: 14, height: 14 }} />
+                <>
+                  <span className="spinner" />
+                  <span>Enregistrement...</span>
+                </>
               ) : (
-                "Enregistrer"
+                <>
+                  <Check size={14} strokeWidth={2.4} />
+                  <span>Enregistrer les modifications</span>
+                </>
               )}
             </button>
           </div>

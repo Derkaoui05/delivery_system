@@ -1,5 +1,6 @@
 // src/components/admin/AssignModal.tsx
 import { useState } from "react";
+import { Bike, X, AlertCircle, UserCheck } from "lucide-react";
 import { api } from "../../api";
 import type { Livraison, Livreur } from "../../types";
 
@@ -34,7 +35,7 @@ export default function AssignModal({
       onSuccess();
       onClose();
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || "Erreur lors de l'affectation du livreur");
     } finally {
       setLoading(false);
     }
@@ -42,23 +43,43 @@ export default function AssignModal({
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
+      <div className="modal" style={{ maxWidth: 480 }} onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <span className="modal-title">📋 Affecter un livreur</span>
-          <button className="btn btn-ghost btn-icon" onClick={onClose}>✕</button>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div
+              style={{
+                width: 34,
+                height: 34,
+                borderRadius: "var(--radius-sm)",
+                background: "var(--brand-surface)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "var(--brand-400)",
+              }}
+            >
+              <Bike size={18} strokeWidth={2} />
+            </div>
+            <h3 className="modal-title">Affectation d'un livreur</h3>
+          </div>
+          <button className="btn btn-ghost btn-icon" onClick={onClose} aria-label="Fermer">
+            <X size={16} strokeWidth={2} />
+          </button>
         </div>
-        <div className="card card-sm" style={{ marginBottom: 16, background: "var(--surface-3)" }}>
-          <div style={{ fontWeight: 700, color: "var(--text-primary)", fontFamily: "monospace" }}>
+
+        <div className="card card-sm" style={{ marginBottom: 16, background: "var(--surface-2)" }}>
+          <div style={{ fontWeight: 700, color: "var(--text-primary)", fontFamily: "var(--font-mono)", fontSize: 13 }}>
             {livraison.reference}
           </div>
-          <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
-            {livraison.clientNom} — {livraison.clientVille}
+          <div style={{ fontSize: 12.5, color: "var(--text-secondary)", marginTop: 4 }}>
+            Destinataire : <strong style={{ color: "var(--text-primary)" }}>{livraison.clientNom}</strong> — {livraison.clientVille}
           </div>
         </div>
+
         <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <div className="form-group">
             <label className="form-label">
-              Livreur disponible ({available.length})
+              Livreurs actifs et disponibles ({available.length})
             </label>
             <select
               className="form-select"
@@ -66,19 +87,30 @@ export default function AssignModal({
               onChange={(e) => setLivreurId(e.target.value)}
               required
             >
-              <option value="">— Sélectionner —</option>
+              <option value="">— Sélectionner un transporteur disponible —</option>
               {available.map((l) => (
                 <option key={l.id} value={l.id}>
-                  {l.nom} — {l.ville}
+                  {l.nom} — {l.ville} ({l.telephone})
                 </option>
               ))}
             </select>
           </div>
+
           {available.length === 0 && (
-            <div className="alert alert-error">⚠ Aucun livreur disponible pour le moment</div>
+            <div className="alert alert-error">
+              <AlertCircle size={15} strokeWidth={2} />
+              <span>Aucun livreur avec le statut DISPONIBLE n'est prêt pour affectation</span>
+            </div>
           )}
-          {error && <div className="alert alert-error">⚠ {error}</div>}
-          <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+
+          {error && (
+            <div className="alert alert-error">
+              <AlertCircle size={15} strokeWidth={2} />
+              <span>{error}</span>
+            </div>
+          )}
+
+          <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 6 }}>
             <button type="button" className="btn btn-ghost" onClick={onClose}>
               Annuler
             </button>
@@ -86,11 +118,18 @@ export default function AssignModal({
               type="submit"
               className="btn btn-primary"
               disabled={loading || !livreurId}
+              style={{ gap: 6 }}
             >
               {loading ? (
-                <span className="spinner" style={{ width: 14, height: 14 }} />
+                <>
+                  <span className="spinner" />
+                  <span>Affectation...</span>
+                </>
               ) : (
-                "Affecter"
+                <>
+                  <UserCheck size={14} strokeWidth={2} />
+                  <span>Confirmer l'affectation</span>
+                </>
               )}
             </button>
           </div>

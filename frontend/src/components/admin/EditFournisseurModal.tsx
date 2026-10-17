@@ -1,5 +1,6 @@
 // src/components/admin/EditFournisseurModal.tsx
 import { useState } from "react";
+import { Edit3, X, AlertCircle, Check } from "lucide-react";
 import { api } from "../../api";
 import type { Fournisseur, UpdateFournisseurRequest } from "../../types";
 
@@ -36,7 +37,7 @@ export default function EditFournisseurModal({
       onSuccess();
       onClose();
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || "Erreur lors de la modification du compte fournisseur");
     } finally {
       setLoading(false);
     }
@@ -44,14 +45,33 @@ export default function EditFournisseurModal({
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
+      <div className="modal" style={{ maxWidth: 540 }} onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <span className="modal-title">✏️ Modifier le fournisseur</span>
-          <button className="btn btn-ghost btn-icon" onClick={onClose}>✕</button>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div
+              style={{
+                width: 34,
+                height: 34,
+                borderRadius: "var(--radius-sm)",
+                background: "var(--brand-surface)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "var(--brand-400)",
+              }}
+            >
+              <Edit3 size={18} strokeWidth={2} />
+            </div>
+            <div>
+              <h3 className="modal-title">Modifier le profil fournisseur</h3>
+              <div style={{ fontSize: 11.5, color: "var(--text-muted)" }}>{fournisseur.email}</div>
+            </div>
+          </div>
+          <button className="btn btn-ghost btn-icon" onClick={onClose} aria-label="Fermer">
+            <X size={16} strokeWidth={2} />
+          </button>
         </div>
-        <div style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 14 }}>
-          {fournisseur.email}
-        </div>
+
         <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <div className="form-grid">
             <div className="form-group">
@@ -64,7 +84,7 @@ export default function EditFournisseurModal({
               />
             </div>
             <div className="form-group">
-              <label className="form-label">Responsable *</label>
+              <label className="form-label">Responsable légal *</label>
               <input
                 className="form-input"
                 value={form.responsable}
@@ -73,9 +93,10 @@ export default function EditFournisseurModal({
               />
             </div>
           </div>
+
           <div className="form-grid">
             <div className="form-group">
-              <label className="form-label">Téléphone *</label>
+              <label className="form-label">Numéro de téléphone *</label>
               <input
                 className="form-input"
                 value={form.telephone}
@@ -93,24 +114,38 @@ export default function EditFournisseurModal({
               />
             </div>
           </div>
+
           <div className="form-group">
-            <label className="form-label">Adresse</label>
+            <label className="form-label">Adresse de l'entrepôt / siège</label>
             <input
               className="form-input"
               value={form.adresse}
               onChange={(e) => set("adresse", e.target.value)}
             />
           </div>
-          {error && <div className="alert alert-error">⚠ {error}</div>}
-          <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+
+          {error && (
+            <div className="alert alert-error">
+              <AlertCircle size={15} strokeWidth={2} />
+              <span>{error}</span>
+            </div>
+          )}
+
+          <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 8 }}>
             <button type="button" className="btn btn-ghost" onClick={onClose}>
               Annuler
             </button>
-            <button type="submit" className="btn btn-primary" disabled={loading}>
+            <button type="submit" className="btn btn-primary" disabled={loading} style={{ gap: 6 }}>
               {loading ? (
-                <span className="spinner" style={{ width: 14, height: 14 }} />
+                <>
+                  <span className="spinner" />
+                  <span>Enregistrement...</span>
+                </>
               ) : (
-                "Enregistrer"
+                <>
+                  <Check size={14} strokeWidth={2.4} />
+                  <span>Enregistrer les modifications</span>
+                </>
               )}
             </button>
           </div>

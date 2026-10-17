@@ -1,11 +1,27 @@
 // src/pages/FournisseurDashboard.tsx
 import { useEffect, useState, useCallback } from "react";
+import {
+  Package,
+  PlusCircle,
+  Clock,
+  Truck,
+  CheckCircle2,
+  AlertTriangle,
+  Search,
+  Eye,
+  History,
+  MapPin,
+  Calendar,
+  Send,
+  AlertCircle,
+  Inbox,
+  Filter,
+} from "lucide-react";
 import { api } from "../api";
-import Layout from "../components/Layout";
+import Layout, { type NavItem } from "../components/Layout";
 import StatusHistoryModal from "../components/StatusHistoryModal";
 import DeliveryDetailModal from "../components/DeliveryDetailModal";
 import { getStatusMeta, ALL_STATUTS } from "../utils/statusHelpers";
-
 import type { Livraison, FournisseurDashboardStats } from "../types";
 import { formatDate } from "../utils/date";
 
@@ -93,12 +109,12 @@ export default function FournisseurDashboard() {
         dateSouhaiteeRecuperation: form.dateSouhaiteeRecuperation || null,
         dateSouhaiteeLivraison: form.dateSouhaiteeLivraison || null,
       });
-      setSuccess("✅ Demande de livraison créée avec succès !");
+      setSuccess("Demande d'expédition enregistrée avec succès !");
       setForm(defaultForm);
       await load();
       setTimeout(() => setTab("livraisons"), 1200);
     } catch (err: any) {
-      setError(err.message || "Erreur lors de la création");
+      setError(err.message || "Erreur lors de la création de la livraison");
     } finally {
       setSubmitting(false);
     }
@@ -124,40 +140,58 @@ export default function FournisseurDashboard() {
     return matchSearch && matchStatus;
   });
 
-  const navItems = [
-    { id: "livraisons", label: "Mes livraisons", icon: "📦", active: tab === "livraisons", onClick: () => setTab("livraisons") },
-    { id: "nouvelle", label: "Nouvelle demande", icon: "➕", active: tab === "nouvelle", onClick: () => setTab("nouvelle") },
+  const navItems: NavItem[] = [
+    {
+      id: "livraisons",
+      label: "Mes expéditions",
+      icon: <Package size={17} strokeWidth={1.8} />,
+      active: tab === "livraisons",
+      onClick: () => setTab("livraisons"),
+    },
+    {
+      id: "nouvelle",
+      label: "Nouvelle demande",
+      icon: <PlusCircle size={17} strokeWidth={1.8} />,
+      active: tab === "nouvelle",
+      onClick: () => setTab("nouvelle"),
+    },
   ];
 
   return (
     <Layout
       role="FOURNISSEUR"
       title="Espace Fournisseur"
-      subtitle="Gérez et suivez l'ensemble de vos expéditions en temps réel"
+      subtitle="Gestion et suivi en temps réel de votre flux d'expéditions"
       navItems={navItems}
       topbarRight={
         <button className="btn btn-primary btn-sm" onClick={() => setTab("nouvelle")}>
-          + Nouvelle livraison
+          <PlusCircle size={14} strokeWidth={2} />
+          <span>Nouvelle expédition</span>
         </button>
       }
     >
       {/* Stats Cards */}
       <div className="stats-grid">
         {[
-          { label: "Total envois", value: stats.total, icon: "📦", color: "var(--brand-500)" },
-          { label: "En attente", value: stats.enAttente, icon: "⏳", color: "var(--amber)" },
-          { label: "En cours", value: stats.enCours, icon: "🚚", color: "var(--sky)" },
-          { label: "Livrées", value: stats.livrees, icon: "✅", color: "var(--emerald)" },
-          { label: "Échecs", value: stats.echouees, icon: "❌", color: "var(--red)" },
-        ].map((s) => (
-          <div key={s.label} className="stat-card" style={{ "--stat-color": s.color } as React.CSSProperties}>
-            <div className="stat-icon">{s.icon}</div>
-            <div>
-              <div className="stat-value">{s.value}</div>
-              <div className="stat-label">{s.label}</div>
+          { label: "Total expéditions", value: stats.total, icon: Package, color: "var(--brand-400)" },
+          { label: "En attente", value: stats.enAttente, icon: Clock, color: "var(--amber-400)" },
+          { label: "En cours d'acheminement", value: stats.enCours, icon: Truck, color: "var(--sky-400)" },
+          { label: "Colis livrés", value: stats.livrees, icon: CheckCircle2, color: "var(--emerald-400)" },
+          { label: "Échecs signalés", value: stats.echouees, icon: AlertTriangle, color: "var(--rose-400)" },
+        ].map((s) => {
+          const Icon = s.icon;
+          return (
+            <div key={s.label} className="stat-card" style={{ "--stat-color": s.color } as React.CSSProperties}>
+              <div className="stat-icon">
+                <Icon size={22} strokeWidth={1.8} />
+              </div>
+              <div>
+                <div className="stat-value">{s.value}</div>
+                <div className="stat-label">{s.label}</div>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Mes Livraisons Tab */}
@@ -166,76 +200,87 @@ export default function FournisseurDashboard() {
           {/* Filter Bar */}
           <div
             style={{
-              padding: "16px 20px",
+              padding: "16px 22px",
               borderBottom: "1px solid var(--border)",
               display: "flex",
-              gap: 12,
+              gap: 14,
               flexWrap: "wrap",
               alignItems: "center",
               justifyContent: "space-between",
+              background: "var(--surface-2)",
             }}
           >
-            <div style={{ display: "flex", gap: 10, flex: 1, minWidth: 260 }}>
-              <input
-                type="text"
-                className="form-input"
-                placeholder="🔍 Rechercher par réf, client ou ville..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                style={{ fontSize: 13, padding: "8px 12px" }}
-              />
-              <select
-                className="form-input"
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                style={{ width: 170, fontSize: 13 }}
-              >
-                <option value="">Tous les statuts</option>
-                {ALL_STATUTS.map((s) => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
-              </select>
+            <div style={{ display: "flex", gap: 12, flex: 1, minWidth: 280 }}>
+              <div className="search-wrapper">
+                <div className="search-icon">
+                  <Search size={15} strokeWidth={2} />
+                </div>
+                <input
+                  type="text"
+                  className="form-input search-input"
+                  placeholder="Rechercher par réf, destinataire ou ville..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              </div>
+
+              <div style={{ position: "relative", minWidth: 190 }}>
+                <select
+                  className="form-select"
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                >
+                  <option value="">Tous les statuts</option>
+                  {ALL_STATUTS.map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+              </div>
             </div>
-            <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
-              {filteredLivraisons.length} expédition(s) trouvée(s)
+
+            <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "var(--text-muted)", fontWeight: 500 }}>
+              <Filter size={13} strokeWidth={2} />
+              <span>{filteredLivraisons.length} colis répertorié(s)</span>
             </div>
           </div>
 
           {loading ? (
-            <div style={{ padding: 40, textAlign: "center", color: "var(--text-muted)" }}>
-              <div className="spinner" style={{ margin: "0 auto 12px" }} />
-              Chargement de vos expéditions...
+            <div style={{ padding: 48, textAlign: "center", color: "var(--text-muted)" }}>
+              <div className="spinner" style={{ margin: "0 auto 14px", width: 22, height: 22 }} />
+              <p style={{ fontSize: 13 }}>Synchronisation des expéditions en cours...</p>
             </div>
           ) : filteredLivraisons.length === 0 ? (
             <div className="empty-state">
-              <div className="empty-state-icon">📦</div>
-              <div className="empty-state-title">Aucune livraison trouvée</div>
-              <div className="empty-state-sub">
-                {search || filterStatus
-                  ? "Aucun résultat ne correspond à vos filtres."
-                  : "Créez votre première demande de livraison en quelques clics !"}
+              <div className="empty-icon">
+                <Inbox size={42} strokeWidth={1.5} />
               </div>
+              <div className="empty-title">Aucune expédition trouvée</div>
+              <p style={{ fontSize: 13, color: "var(--text-muted)", maxWidth: 360, marginBottom: 18 }}>
+                {search || filterStatus
+                  ? "Aucun résultat ne correspond aux filtres appliqués."
+                  : "Vous n'avez pas encore créé de demande de livraison."}
+              </p>
               <button
                 className="btn btn-primary"
-                style={{ marginTop: 14 }}
                 onClick={() => setTab("nouvelle")}
               >
-                Créer une livraison
+                <PlusCircle size={15} strokeWidth={2} />
+                <span>Créer une première expédition</span>
               </button>
             </div>
           ) : (
-            <div className="table-wrapper">
-              <table className="table">
+            <div className="table-wrapper" style={{ border: "none", borderRadius: 0 }}>
+              <table>
                 <thead>
                   <tr>
                     <th>Référence</th>
                     <th>Statut</th>
-                    <th>Client (Destinataire)</th>
-                    <th>Ville</th>
+                    <th>Destinataire</th>
+                    <th>Destination</th>
                     <th>Colis</th>
-                    <th>Livreur</th>
+                    <th>Livreur assigné</th>
                     <th>Date souhaitée</th>
-                    <th>Actions</th>
+                    <th style={{ textAlign: "right" }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -245,12 +290,13 @@ export default function FournisseurDashboard() {
                       <tr key={l.id}>
                         <td>
                           <button
-                            className="btn btn-ghost btn-sm"
-                            style={{ fontFamily: "monospace", fontSize: 12, padding: "3px 8px" }}
+                            className="btn btn-ghost btn-sm td-primary"
                             onClick={() => setDetailTarget(l)}
-                            title="Voir les détails complets"
+                            title="Consulter le dossier de livraison"
+                            style={{ gap: 6 }}
                           >
-                            {l.reference} 🔍
+                            <span>{l.reference}</span>
+                            <Eye size={12} strokeWidth={2} style={{ color: "var(--text-muted)" }} />
                           </button>
                         </td>
                         <td>
@@ -259,28 +305,36 @@ export default function FournisseurDashboard() {
                             {meta.label}
                           </span>
                         </td>
-                        <td style={{ color: "var(--text-primary)", fontWeight: 500 }}>{l.clientNom}</td>
+                        <td style={{ color: "var(--text-primary)", fontWeight: 600 }}>{l.clientNom}</td>
                         <td>{l.clientVille}</td>
-                        <td style={{ maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        <td style={{ maxWidth: 180, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                           {l.descriptionColis}
                         </td>
-                        <td>{l.livreurNom || <span className="text-muted">— Non assigné</span>}</td>
-                        <td>{formatDate(l.dateSouhaiteeLivraison)}</td>
                         <td>
-                          <div style={{ display: "flex", gap: 6 }}>
+                          {l.livreurNom ? (
+                            <span style={{ color: "var(--text-primary)", fontWeight: 500 }}>{l.livreurNom}</span>
+                          ) : (
+                            <span style={{ color: "var(--text-dim)", fontSize: 12 }}>Non assigné</span>
+                          )}
+                        </td>
+                        <td style={{ fontSize: 12.5 }}>{formatDate(l.dateSouhaiteeLivraison)}</td>
+                        <td style={{ textAlign: "right" }}>
+                          <div style={{ display: "inline-flex", gap: 6 }}>
                             <button
-                              className="btn btn-secondary btn-sm"
-                              style={{ fontSize: 11, padding: "3px 8px" }}
+                              className="btn btn-ghost btn-sm"
                               onClick={() => setDetailTarget(l)}
+                              title="Détails complets"
                             >
-                              👁 Détails
+                              <Eye size={13} strokeWidth={1.8} />
+                              <span>Détails</span>
                             </button>
                             <button
                               className="btn btn-ghost btn-sm"
-                              style={{ fontSize: 11, padding: "3px 8px" }}
                               onClick={() => setHistoryTarget(l)}
+                              title="Historique des étapes"
                             >
-                              🕒 Timeline
+                              <History size={13} strokeWidth={1.8} />
+                              <span>Timeline</span>
                             </button>
                           </div>
                         </td>
@@ -296,19 +350,20 @@ export default function FournisseurDashboard() {
 
       {/* Nouvelle Livraison Form Tab */}
       {tab === "nouvelle" && (
-        <div className="card">
-          <div className="section-header" style={{ marginBottom: 20 }}>
+        <div className="card" style={{ maxWidth: 900, margin: "0 auto" }}>
+          <div className="section-header" style={{ marginBottom: 24 }}>
             <div>
-              <div className="section-title">📦 Nouvelle demande d'expédition</div>
-              <div className="section-subtitle">Renseignez les détails du colis et l'adresse de destination</div>
+              <h2 className="section-title" style={{ fontSize: 18 }}>Création d'une nouvelle expédition</h2>
+              <p className="section-subtitle">Détails logistiques du colis et coordonnées du point de chute</p>
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 26 }}>
             {/* Section: Colis */}
             <div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: "var(--brand-500)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 12 }}>
-                📦 Informations colis
+              <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, fontWeight: 700, color: "var(--brand-400)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 14 }}>
+                <Package size={15} strokeWidth={2} />
+                <span>Description & Caractéristiques du colis</span>
               </div>
               <div className="form-grid">
                 <div className="form-group" style={{ gridColumn: "1 / -1" }}>
@@ -316,7 +371,7 @@ export default function FournisseurDashboard() {
                   <input
                     type="text"
                     className="form-input"
-                    placeholder="Ex. Électronique fragile, documents légaux, vêtements..."
+                    placeholder="Ex. Équipement électronique, pièces détachées, documents..."
                     value={form.descriptionColis}
                     onChange={(e) => set("descriptionColis", e.target.value)}
                     required
@@ -340,18 +395,18 @@ export default function FournisseurDashboard() {
                     type="number"
                     step="0.1"
                     className="form-input"
-                    placeholder="Ex. 2.5"
+                    placeholder="Ex. 3.5"
                     value={form.poidsApprox}
                     onChange={(e) => set("poidsApprox", e.target.value)}
                   />
                 </div>
 
                 <div className="form-group" style={{ gridColumn: "1 / -1" }}>
-                  <label className="form-label">Instructions de récupération (Point A)</label>
+                  <label className="form-label">Instructions d'enlèvement (Point A)</label>
                   <input
                     type="text"
                     className="form-input"
-                    placeholder="Ex. Se présenter à l'accueil, demander M. Tazi au 2ème étage"
+                    placeholder="Ex. Quai numéro 3, demander le responsable d'entrepôt"
                     value={form.instructions}
                     onChange={(e) => set("instructions", e.target.value)}
                   />
@@ -363,16 +418,17 @@ export default function FournisseurDashboard() {
 
             {/* Section: Destinataire (Client) */}
             <div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: "var(--emerald)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 12 }}>
-                🏁 Destinataire (Client / Point B)
+              <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, fontWeight: 700, color: "var(--emerald-400)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 14 }}>
+                <MapPin size={15} strokeWidth={2} />
+                <span>Destinataire & Point de chute (Point B)</span>
               </div>
               <div className="form-grid">
                 <div className="form-group">
-                  <label className="form-label">Nom complet du client *</label>
+                  <label className="form-label">Nom complet du destinataire *</label>
                   <input
                     type="text"
                     className="form-input"
-                    placeholder="Ex. Fatima Zahra Alami"
+                    placeholder="Ex. Mehdi Bennani"
                     value={form.clientNom}
                     onChange={(e) => set("clientNom", e.target.value)}
                     required
@@ -380,7 +436,7 @@ export default function FournisseurDashboard() {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Téléphone client *</label>
+                  <label className="form-label">Numéro de téléphone *</label>
                   <input
                     type="tel"
                     className="form-input"
@@ -392,11 +448,11 @@ export default function FournisseurDashboard() {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Adresse de livraison complète *</label>
+                  <label className="form-label">Adresse de livraison détaillée *</label>
                   <input
                     type="text"
                     className="form-input"
-                    placeholder="Ex. Résidence Les Fleurs, Appt 12, Quartier Bourgogne"
+                    placeholder="Ex. 42 Boulevard d'Anfa, Immeuble A, 4ème étage"
                     value={form.clientAdresse}
                     onChange={(e) => set("clientAdresse", e.target.value)}
                     required
@@ -404,11 +460,11 @@ export default function FournisseurDashboard() {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Ville de livraison *</label>
+                  <label className="form-label">Ville de destination *</label>
                   <input
                     type="text"
                     className="form-input"
-                    placeholder="Ex. Casablanca, Rabat, Marrakech..."
+                    placeholder="Ex. Casablanca, Rabat, Tanger..."
                     value={form.clientVille}
                     onChange={(e) => set("clientVille", e.target.value)}
                     required
@@ -416,11 +472,11 @@ export default function FournisseurDashboard() {
                 </div>
 
                 <div className="form-group" style={{ gridColumn: "1 / -1" }}>
-                  <label className="form-label">Instructions de livraison (Point B)</label>
+                  <label className="form-label">Instructions spécifiques au livreur</label>
                   <input
                     type="text"
                     className="form-input"
-                    placeholder="Ex. Code porte 2458B, sonner à l'interphone"
+                    placeholder="Ex. Digicode 1984, appeler à l'arrivée"
                     value={form.instructionsLivraison}
                     onChange={(e) => set("instructionsLivraison", e.target.value)}
                   />
@@ -432,8 +488,9 @@ export default function FournisseurDashboard() {
 
             {/* Section: Planning & Notes */}
             <div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: "var(--sky)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 12 }}>
-                📅 Planning & Remarques
+              <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, fontWeight: 700, color: "var(--sky-400)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 14 }}>
+                <Calendar size={15} strokeWidth={2} />
+                <span>Dates prévisionnelles & Notes</span>
               </div>
               <div className="form-grid">
                 <div className="form-group">
@@ -459,9 +516,9 @@ export default function FournisseurDashboard() {
                 <div className="form-group" style={{ gridColumn: "1 / -1" }}>
                   <label className="form-label">Commentaire additionnel</label>
                   <textarea
-                    className="form-input"
+                    className="form-textarea"
                     rows={2}
-                    placeholder="Remarques particulières pour le transporteur..."
+                    placeholder="Remarques éventuelles sur la manipulation ou la priorité..."
                     value={form.commentaire}
                     onChange={(e) => set("commentaire", e.target.value)}
                   />
@@ -471,19 +528,21 @@ export default function FournisseurDashboard() {
 
             {error && (
               <div className="alert alert-error">
-                <span>⚠</span> {error}
+                <AlertCircle size={16} strokeWidth={2} />
+                <span>{error}</span>
               </div>
             )}
             {success && (
               <div className="alert alert-success">
-                <span>✓</span> {success}
+                <CheckCircle2 size={16} strokeWidth={2} />
+                <span>{success}</span>
               </div>
             )}
 
-            <div style={{ display: "flex", gap: 12, justifyContent: "flex-end" }}>
+            <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", paddingTop: 8 }}>
               <button
                 type="button"
-                className="btn btn-secondary"
+                className="btn btn-ghost"
                 onClick={() => setTab("livraisons")}
                 disabled={submitting}
               >
@@ -493,8 +552,19 @@ export default function FournisseurDashboard() {
                 type="submit"
                 className="btn btn-primary btn-lg"
                 disabled={submitting}
+                style={{ gap: 8 }}
               >
-                {submitting ? "Création en cours..." : "Confirmer la demande 🚀"}
+                {submitting ? (
+                  <>
+                    <span className="spinner" />
+                    <span>Création en cours...</span>
+                  </>
+                ) : (
+                  <>
+                    <Send size={15} strokeWidth={2} />
+                    <span>Confirmer la demande</span>
+                  </>
+                )}
               </button>
             </div>
           </form>

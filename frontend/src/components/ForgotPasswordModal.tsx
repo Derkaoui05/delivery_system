@@ -1,5 +1,6 @@
 // src/components/ForgotPasswordModal.tsx
 import { useState } from "react";
+import { KeyRound, X, ArrowLeft, ArrowRight, AlertCircle, CheckCircle2, Mail } from "lucide-react";
 import { api } from "../api";
 
 interface ForgotPasswordModalProps {
@@ -23,7 +24,7 @@ export default function ForgotPasswordModal({ onClose }: ForgotPasswordModalProp
     setLoading(true);
     try {
       const res = await api.forgotPassword(email);
-      setSuccess("Un jeton de réinitialisation a été généré.");
+      setSuccess("Un jeton de réinitialisation a été généré avec succès.");
       if (res.resetToken) {
         setAutoToken(res.resetToken);
         setToken(res.resetToken);
@@ -58,74 +59,106 @@ export default function ForgotPasswordModal({ onClose }: ForgotPasswordModalProp
         onClose();
       }, 2000);
     } catch (err: any) {
-      setError(err.message || "Jeton invalide ou expiré.");
+      setError(err.message || "Jeton de réinitialisation invalide ou expiré.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
+    <div className="modal-overlay" onClick={onClose}>
       <div
-        className="modal-card"
+        className="modal"
         style={{ maxWidth: 460, width: "95%" }}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="modal-header">
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <span style={{ fontSize: 20 }}>🔑</span>
-            <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0, color: "var(--text-primary)" }}>
+            <div
+              style={{
+                width: 34,
+                height: 34,
+                borderRadius: "var(--radius-sm)",
+                background: "var(--brand-surface)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "var(--brand-400)",
+              }}
+            >
+              <KeyRound size={18} strokeWidth={2} />
+            </div>
+            <h3 className="modal-title">
               {step === "request" ? "Mot de passe oublié" : "Réinitialisation du mot de passe"}
             </h3>
           </div>
-          <button className="btn-close" onClick={onClose}>✕</button>
+          <button className="btn btn-ghost btn-icon" onClick={onClose} aria-label="Fermer">
+            <X size={16} strokeWidth={2} />
+          </button>
         </div>
 
-        <div style={{ padding: 20, display: "flex", flexDirection: "column", gap: 14 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           {error && (
-            <div className="alert alert-error" style={{ fontSize: 13, padding: "8px 12px" }}>
-              <span>⚠️</span> {error}
+            <div className="alert alert-error">
+              <AlertCircle size={15} strokeWidth={2} />
+              <span>{error}</span>
             </div>
           )}
           {success && (
-            <div className="alert alert-success" style={{ fontSize: 13, padding: "8px 12px" }}>
-              <span>✓</span> {success}
+            <div className="alert alert-success">
+              <CheckCircle2 size={15} strokeWidth={2} />
+              <span>{success}</span>
             </div>
           )}
 
           {step === "request" ? (
             <form onSubmit={handleRequestToken} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              <p style={{ fontSize: 13, color: "var(--text-secondary)", margin: 0 }}>
-                Entrez votre adresse email. Un jeton de réinitialisation vous sera attribué pour renouveler votre mot de passe.
+              <p style={{ fontSize: 13, color: "var(--text-secondary)", margin: 0, lineHeight: 1.5 }}>
+                Renseignez votre adresse e-mail. Un jeton sécurisé de renouvellement vous sera généré pour configurer votre nouveau mot de passe.
               </p>
 
               <div className="form-group">
                 <label className="form-label">Adresse e-mail</label>
-                <input
-                  type="email"
-                  className="form-input"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="nom@exemple.com"
-                  required
-                />
+                <div className="search-wrapper">
+                  <div className="search-icon">
+                    <Mail size={14} strokeWidth={2} />
+                  </div>
+                  <input
+                    type="email"
+                    className="form-input search-input"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="nom@entreprise.com"
+                    required
+                  />
+                </div>
               </div>
 
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 8 }}>
                 <button
                   type="button"
-                  className="btn btn-secondary"
+                  className="btn btn-ghost"
                   onClick={() => setStep("reset")}
-                  style={{ fontSize: 12 }}
+                  style={{ fontSize: 12.5 }}
                 >
                   J'ai déjà un jeton
                 </button>
                 <div style={{ display: "flex", gap: 8 }}>
-                  <button type="button" className="btn btn-secondary" onClick={onClose}>
+                  <button type="button" className="btn btn-ghost" onClick={onClose}>
                     Annuler
                   </button>
-                  <button type="submit" className="btn btn-primary" disabled={loading}>
-                    {loading ? "Envoi..." : "Suivant"}
+                  <button type="submit" className="btn btn-primary" disabled={loading} style={{ gap: 6 }}>
+                    {loading ? (
+                      <>
+                        <span className="spinner" />
+                        <span>Envoi...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Suivant</span>
+                        <ArrowRight size={14} strokeWidth={2} />
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
@@ -135,15 +168,15 @@ export default function ForgotPasswordModal({ onClose }: ForgotPasswordModalProp
               {autoToken && (
                 <div
                   style={{
-                    background: "rgba(99, 102, 241, 0.1)",
-                    border: "1px solid rgba(99, 102, 241, 0.2)",
-                    borderRadius: 8,
+                    background: "var(--brand-surface)",
+                    border: "1px solid rgba(99, 102, 241, 0.3)",
+                    borderRadius: "var(--radius-sm)",
                     padding: "8px 12px",
                     fontSize: 12,
                     color: "var(--text-secondary)",
                   }}
                 >
-                  <strong style={{ color: "var(--brand-500)" }}>Jeton détecté:</strong> {autoToken.substring(0, 16)}...
+                  <strong style={{ color: "var(--brand-400)" }}>Jeton détecté :</strong> {autoToken.substring(0, 16)}...
                 </div>
               )}
 
@@ -154,7 +187,7 @@ export default function ForgotPasswordModal({ onClose }: ForgotPasswordModalProp
                   className="form-input"
                   value={token}
                   onChange={(e) => setToken(e.target.value)}
-                  placeholder="UUID du jeton"
+                  placeholder="Collez le token reçu"
                   required
                 />
               </div>
@@ -166,7 +199,7 @@ export default function ForgotPasswordModal({ onClose }: ForgotPasswordModalProp
                   className="form-input"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="••••••••"
+                  placeholder="••••••••••••"
                   required
                 />
               </div>
@@ -178,7 +211,7 @@ export default function ForgotPasswordModal({ onClose }: ForgotPasswordModalProp
                   className="form-input"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="••••••••"
+                  placeholder="••••••••••••"
                   required
                 />
               </div>
@@ -186,14 +219,22 @@ export default function ForgotPasswordModal({ onClose }: ForgotPasswordModalProp
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 8 }}>
                 <button
                   type="button"
-                  className="btn btn-secondary"
+                  className="btn btn-ghost"
                   onClick={() => setStep("request")}
-                  style={{ fontSize: 12 }}
+                  style={{ fontSize: 12.5, gap: 5 }}
                 >
-                  ← Retour
+                  <ArrowLeft size={13} strokeWidth={2} />
+                  <span>Retour</span>
                 </button>
                 <button type="submit" className="btn btn-primary" disabled={loading}>
-                  {loading ? "Réinitialisation..." : "Valider"}
+                  {loading ? (
+                    <>
+                      <span className="spinner" />
+                      <span>Réinitialisation...</span>
+                    </>
+                  ) : (
+                    <span>Valider le nouveau mot de passe</span>
+                  )}
                 </button>
               </div>
             </form>

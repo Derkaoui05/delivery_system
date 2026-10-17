@@ -1,14 +1,23 @@
 // src/components/Layout.tsx
 import { useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  Truck,
+  Shield,
+  Building2,
+  Bike,
+  KeyRound,
+  LogOut,
+  ChevronDown,
+} from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import NotificationBell from "./NotificationBell";
 import ChangePasswordModal from "./ChangePasswordModal";
 
-interface NavItem {
+export interface NavItem {
   id: string;
   label: string;
-  icon: string;
+  icon: ReactNode;
   active?: boolean;
   onClick: () => void;
 }
@@ -25,21 +34,24 @@ interface LayoutProps {
 const roleConfig = {
   ADMIN: {
     label: "Administrateur",
-    icon: "👑",
-    color: "#6366f1",
-    bg: "/admin",
+    icon: Shield,
+    color: "var(--brand-400)",
+    bg: "var(--brand-surface)",
+    border: "rgba(99, 102, 241, 0.32)",
   },
   FOURNISSEUR: {
     label: "Fournisseur",
-    icon: "🏭",
-    color: "#10b981",
-    bg: "/fournisseur",
+    icon: Building2,
+    color: "var(--emerald-400)",
+    bg: "var(--emerald-surface)",
+    border: "rgba(16, 185, 129, 0.32)",
   },
   LIVREUR: {
     label: "Livreur",
-    icon: "🛵",
-    color: "#f59e0b",
-    bg: "/livreur",
+    icon: Bike,
+    color: "var(--amber-400)",
+    bg: "var(--amber-surface)",
+    border: "rgba(245, 158, 11, 0.32)",
   },
 };
 
@@ -47,6 +59,7 @@ export default function Layout({ children, title, subtitle, navItems, topbarRigh
   const { auth, logout } = useAuth();
   const navigate = useNavigate();
   const cfg = roleConfig[role];
+  const RoleIcon = cfg.icon;
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
 
@@ -62,15 +75,17 @@ export default function Layout({ children, title, subtitle, navItems, topbarRigh
       {/* Sidebar */}
       <aside className="sidebar">
         <div className="sidebar-logo">
-          <div className="sidebar-logo-icon">🚚</div>
+          <div className="sidebar-logo-icon">
+            <Truck size={20} strokeWidth={2.2} />
+          </div>
           <div>
-            <div className="sidebar-logo-text">DeliverPro</div>
-            <div className="sidebar-logo-sub">Gestion logistique</div>
+            <div className="sidebar-logo-text">SwiftLog</div>
+            <div className="sidebar-logo-sub">Enterprise Delivery</div>
           </div>
         </div>
 
         <nav className="sidebar-nav">
-          <div className="nav-section-label">Menu Principal</div>
+          <div className="nav-section-label">Navigation</div>
           {navItems.map((item) => (
             <button
               key={item.id}
@@ -78,13 +93,13 @@ export default function Layout({ children, title, subtitle, navItems, topbarRigh
               onClick={item.onClick}
             >
               <span className="nav-item-icon">{item.icon}</span>
-              {item.label}
+              <span>{item.label}</span>
             </button>
           ))}
         </nav>
 
         <div className="sidebar-footer">
-          {/* Role badge */}
+          {/* Active Role card */}
           <div
             style={{
               display: "flex",
@@ -92,16 +107,15 @@ export default function Layout({ children, title, subtitle, navItems, topbarRigh
               gap: 10,
               padding: "10px 12px",
               borderRadius: "var(--radius-sm)",
-              background: cfg.color + "18",
-              border: `1px solid ${cfg.color}40`,
-              marginBottom: 10,
+              background: cfg.bg,
+              border: `1px solid ${cfg.border}`,
             }}
           >
-            <span style={{ fontSize: 18 }}>{cfg.icon}</span>
+            <RoleIcon size={18} strokeWidth={2} style={{ color: cfg.color, flexShrink: 0 }} />
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: cfg.color }}>{cfg.label}</div>
               <div style={{ fontSize: 11, color: "var(--text-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                Session active
+                Session sécurisée
               </div>
             </div>
           </div>
@@ -109,81 +123,98 @@ export default function Layout({ children, title, subtitle, navItems, topbarRigh
           <button
             type="button"
             className="btn btn-ghost w-full"
-            style={{ fontSize: 12, marginBottom: 6, justifyContent: "flex-start" }}
+            style={{ fontSize: 12.5, justifyContent: "flex-start", gap: 9 }}
             onClick={() => setShowChangePassword(true)}
           >
-            <span>🔒</span> Mot de passe
+            <KeyRound size={14} strokeWidth={2} style={{ color: "var(--text-muted)" }} />
+            <span>Mot de passe</span>
           </button>
 
           <button
             id="btn-logout"
             className="btn btn-ghost w-full"
-            style={{ fontSize: 12, justifyContent: "flex-start", color: "var(--red)" }}
+            style={{ fontSize: 12.5, justifyContent: "flex-start", color: "var(--rose-400)", gap: 9 }}
             onClick={handleLogout}
           >
-            <span>↩</span> Se déconnecter
+            <LogOut size={14} strokeWidth={2} />
+            <span>Déconnexion</span>
           </button>
         </div>
       </aside>
 
-      {/* Main */}
+      {/* Main Content Area */}
       <main className="main">
-        {/* Topbar */}
+        {/* Sticky Translucent Topbar */}
         <header className="topbar">
           <div>
-            <div className="topbar-title">{title}</div>
-            {subtitle && <div className="topbar-subtitle">{subtitle}</div>}
+            <h1 className="topbar-title">{title}</h1>
+            {subtitle && <p className="topbar-subtitle">{subtitle}</p>}
           </div>
-          <div className="topbar-right" style={{ position: "relative" }}>
+
+          <div className="topbar-right">
             {topbarRight}
             <NotificationBell />
 
             <div style={{ position: "relative" }}>
-              <div
-                className="avatar"
-                style={{ cursor: "pointer" }}
+              <button
+                type="button"
                 onClick={() => setShowUserMenu(!showUserMenu)}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  background: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                  padding: 2,
+                }}
                 title="Options profil"
+                aria-label="Options profil"
               >
-                {initials}
-              </div>
+                <div className="avatar">
+                  {initials}
+                </div>
+                <ChevronDown size={14} strokeWidth={2} style={{ color: "var(--text-muted)" }} />
+              </button>
 
               {showUserMenu && (
                 <div
                   style={{
                     position: "absolute",
                     right: 0,
-                    top: "100%",
-                    marginTop: 8,
-                    background: "var(--surface-2)",
-                    border: "1px solid var(--border)",
+                    top: "calc(100% + 10px)",
+                    background: "var(--surface-1)",
+                    border: "1px solid var(--border-strong)",
                     borderRadius: "var(--radius-md)",
-                    boxShadow: "var(--shadow-lg)",
-                    minWidth: 180,
+                    boxShadow: "var(--shadow-lg), 0 0 0 1px rgba(255,255,255,0.05)",
+                    minWidth: 200,
                     zIndex: 100,
                     padding: 6,
                     display: "flex",
                     flexDirection: "column",
                     gap: 4,
+                    animation: "modalScaleUp var(--dur-fast) var(--ease-spring)",
                   }}
                   onMouseLeave={() => setShowUserMenu(false)}
                 >
                   <button
                     className="btn btn-ghost btn-sm"
-                    style={{ justifyContent: "flex-start", fontSize: 12 }}
+                    style={{ justifyContent: "flex-start", fontSize: 12.5, gap: 8 }}
                     onClick={() => {
                       setShowUserMenu(false);
                       setShowChangePassword(true);
                     }}
                   >
-                    🔒 Changer mot de passe
+                    <KeyRound size={14} strokeWidth={2} />
+                    <span>Changer mot de passe</span>
                   </button>
                   <button
                     className="btn btn-ghost btn-sm"
-                    style={{ justifyContent: "flex-start", fontSize: 12, color: "var(--red)" }}
+                    style={{ justifyContent: "flex-start", fontSize: 12.5, color: "var(--rose-400)", gap: 8 }}
                     onClick={handleLogout}
                   >
-                    ↩ Déconnexion
+                    <LogOut size={14} strokeWidth={2} />
+                    <span>Déconnexion</span>
                   </button>
                 </div>
               )}
@@ -191,7 +222,7 @@ export default function Layout({ children, title, subtitle, navItems, topbarRigh
           </div>
         </header>
 
-        {/* Content */}
+        {/* Dynamic Route View */}
         <div className="page-content">{children}</div>
       </main>
 

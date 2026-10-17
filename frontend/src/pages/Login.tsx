@@ -1,6 +1,17 @@
 // src/pages/Login.tsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  Truck,
+  Mail,
+  Lock,
+  ArrowRight,
+  CheckCircle2,
+  AlertCircle,
+  Shield,
+  Building2,
+  Bike,
+} from "lucide-react";
 import { api } from "../api";
 import { useAuth } from "../context/AuthContext";
 import ForgotPasswordModal from "../components/ForgotPasswordModal";
@@ -35,9 +46,9 @@ export default function Login() {
   };
 
   const demoAccounts = [
-    { label: "Admin", email: "admin@livraison.com", defaultPass: "Admin1234!", color: "#6366f1" },
-    { label: "Fournisseur", email: "fournisseur@livraison.com", defaultPass: "Fournisseur1234!", color: "#10b981" },
-    { label: "Livreur", email: "livreur@livraison.com", defaultPass: "Livreur1234!", color: "#f59e0b" },
+    { label: "Admin", email: "admin@livraison.com", defaultPass: "Admin1234!", color: "var(--brand-400)", icon: Shield },
+    { label: "Fournisseur", email: "fournisseur@livraison.com", defaultPass: "Fournisseur1234!", color: "var(--emerald-400)", icon: Building2 },
+    { label: "Livreur", email: "livreur@livraison.com", defaultPass: "Livreur1234!", color: "var(--amber-400)", icon: Bike },
   ];
 
   const handleSelectDemo = (acc: typeof demoAccounts[0]) => {
@@ -47,45 +58,45 @@ export default function Login() {
 
   return (
     <div className="login-page">
-      {/* Background glows */}
+      {/* Ambient background glows */}
       <div className="login-bg-glow login-bg-glow-1" />
       <div className="login-bg-glow login-bg-glow-2" />
 
-      <div className="login-card" style={{ maxWidth: 440, width: "100%" }}>
-        {/* Logo */}
+      <div className="login-card">
+        {/* Brand identity */}
         <div className="login-logo">
-          <div className="login-logo-icon">🚚</div>
-          <div>
-            <div style={{ fontSize: 20, fontWeight: 800, color: "var(--text-primary)", letterSpacing: "-0.5px" }}>
-              DeliverPro
-            </div>
-            <div style={{ fontSize: 11, color: "var(--text-muted)" }}>Plateforme moderne de gestion logistique</div>
+          <div className="login-logo-icon">
+            <Truck size={26} strokeWidth={2.2} />
           </div>
+          <h1 className="login-title">SwiftLog</h1>
+          <p className="login-subtitle">Plateforme entreprise de gestion logistique</p>
         </div>
 
-        <div className="login-title">Connexion</div>
-        <div className="login-subtitle">Accédez à votre espace sécurisé</div>
-
         {info && (
-          <div className="alert alert-success" style={{ marginBottom: 14 }}>
-            <span>✓</span> {info}
+          <div className="alert alert-success" style={{ marginBottom: 16 }}>
+            <CheckCircle2 size={16} strokeWidth={2.2} />
+            <span>{info}</span>
           </div>
         )}
 
         {error && (
-          <div className="alert alert-error" style={{ marginBottom: 14 }}>
-            <span>⚠</span> {error}
+          <div className="alert alert-error" style={{ marginBottom: 16 }}>
+            <AlertCircle size={16} strokeWidth={2.2} />
+            <span>{error}</span>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <div className="form-group">
-            <label className="form-label">Adresse e-mail</label>
+            <label className="form-label" htmlFor="login-email" style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <Mail size={13} strokeWidth={2} style={{ color: "var(--text-muted)" }} />
+              <span>Adresse e-mail professionnelle</span>
+            </label>
             <input
               id="login-email"
               className="form-input"
               type="email"
-              placeholder="votre@email.com"
+              placeholder="votre@entreprise.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -95,15 +106,19 @@ export default function Login() {
 
           <div className="form-group">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <label className="form-label" style={{ marginBottom: 0 }}>Mot de passe</label>
+              <label className="form-label" htmlFor="login-password" style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 0 }}>
+                <Lock size={13} strokeWidth={2} style={{ color: "var(--text-muted)" }} />
+                <span>Mot de passe</span>
+              </label>
               <button
                 type="button"
                 onClick={() => setShowForgot(true)}
                 style={{
                   background: "none",
                   border: "none",
-                  color: "var(--brand-500)",
+                  color: "var(--brand-400)",
                   fontSize: 12,
+                  fontWeight: 600,
                   cursor: "pointer",
                   padding: 0,
                 }}
@@ -115,11 +130,10 @@ export default function Login() {
               id="login-password"
               className="form-input"
               type="password"
-              placeholder="••••••••"
+              placeholder="••••••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              style={{ marginTop: 6 }}
             />
           </div>
 
@@ -128,14 +142,21 @@ export default function Login() {
             type="submit"
             className="btn btn-primary btn-lg w-full"
             disabled={loading}
-            style={{ marginTop: 6 }}
+            style={{ marginTop: 4, height: 44 }}
           >
-            {loading ? <span className="spinner" style={{ width: 16, height: 16 }} /> : "Se connecter →"}
+            {loading ? (
+              <span className="spinner" />
+            ) : (
+              <>
+                <span>Accéder au portail</span>
+                <ArrowRight size={16} strokeWidth={2.2} />
+              </>
+            )}
           </button>
         </form>
 
-        {/* Inscription Fournisseur */}
-        <div style={{ marginTop: 16, textAlign: "center", fontSize: 13, color: "var(--text-secondary)" }}>
+        {/* Fournisseur account creation prompt */}
+        <div style={{ marginTop: 20, textAlign: "center", fontSize: 13, color: "var(--text-secondary)" }}>
           Vous êtes expéditeur / fournisseur ?{" "}
           <button
             type="button"
@@ -143,7 +164,7 @@ export default function Login() {
             style={{
               background: "none",
               border: "none",
-              color: "var(--emerald)",
+              color: "var(--emerald-400)",
               fontWeight: 600,
               cursor: "pointer",
               padding: 0,
@@ -153,23 +174,33 @@ export default function Login() {
           </button>
         </div>
 
-        {/* Demo accounts shortcut */}
-        <div className="divider" style={{ margin: "20px 0 14px" }} />
-        <div style={{ fontSize: 11, color: "var(--text-muted)", marginBottom: 10, textAlign: "center" }}>
-          Connexion rapide (comptes démo)
+        {/* Demo shortcuts */}
+        <div className="divider" style={{ margin: "22px 0 16px" }} />
+        <div style={{ fontSize: 11, color: "var(--text-dim)", marginBottom: 12, textAlign: "center", fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase" }}>
+          Accès rapide de démonstration
         </div>
-        <div style={{ display: "flex", gap: 8 }}>
-          {demoAccounts.map((acc) => (
-            <button
-              key={acc.email}
-              type="button"
-              className="btn btn-ghost btn-sm"
-              style={{ flex: 1, fontSize: 11, borderColor: acc.color + "40", color: acc.color }}
-              onClick={() => handleSelectDemo(acc)}
-            >
-              {acc.label}
-            </button>
-          ))}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
+          {demoAccounts.map((acc) => {
+            const Icon = acc.icon;
+            return (
+              <button
+                key={acc.email}
+                type="button"
+                className="btn btn-ghost btn-sm"
+                style={{
+                  fontSize: 11.5,
+                  padding: "7px 6px",
+                  borderColor: "var(--border)",
+                  color: "var(--text-secondary)",
+                  gap: 6,
+                }}
+                onClick={() => handleSelectDemo(acc)}
+              >
+                <Icon size={13} strokeWidth={2} style={{ color: acc.color }} />
+                <span>{acc.label}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -182,7 +213,7 @@ export default function Login() {
             setShowRegister(false);
             setEmail(regEmail);
             setPassword("");
-            setInfo("Compte fournisseur créé avec succès ! Veuillez vous connecter.");
+            setInfo("Compte fournisseur créé avec succès ! Vous pouvez maintenant vous connecter.");
           }}
         />
       )}

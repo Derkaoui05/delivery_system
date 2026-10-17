@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
+import { Bell, BellOff, CheckCheck, CircleDot } from "lucide-react";
 import { api } from "../api";
 import type { Notification } from "../types";
-
 
 function timeAgo(dateStr: string) {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -27,7 +27,7 @@ export default function NotificationBell() {
 
   useEffect(() => {
     load();
-    const id = setInterval(load, 30000); // poll every 30s
+    const id = setInterval(load, 30000);
     return () => clearInterval(id);
   }, []);
 
@@ -61,18 +61,20 @@ export default function NotificationBell() {
         id="btn-notifications"
         className="btn btn-ghost btn-icon"
         onClick={() => setOpen((o) => !o)}
-        style={{ position: "relative", fontSize: 18 }}
+        style={{ position: "relative" }}
         title="Notifications"
+        aria-label="Notifications"
       >
-        🔔
+        <Bell size={18} strokeWidth={1.8} />
         {unread > 0 && (
           <span
             style={{
               position: "absolute",
-              top: -4, right: -4,
-              background: "var(--red)",
+              top: -3,
+              right: -3,
+              background: "var(--rose-500)",
               color: "#fff",
-              borderRadius: "999px",
+              borderRadius: "var(--radius-full)",
               fontSize: 10,
               fontWeight: 700,
               minWidth: 16,
@@ -80,9 +82,9 @@ export default function NotificationBell() {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              padding: "0 3px",
-              boxShadow: "0 0 6px var(--red-glow)",
-              animation: "pulse 2s infinite",
+              padding: "0 4px",
+              boxShadow: "0 0 8px var(--rose-glow)",
+              animation: "pulse 2.2s infinite",
             }}
           >
             {unread > 9 ? "9+" : unread}
@@ -97,13 +99,13 @@ export default function NotificationBell() {
             top: "calc(100% + 10px)",
             right: 0,
             width: 360,
-            background: "var(--surface-2)",
-            border: "1px solid var(--border)",
+            background: "var(--surface-1)",
+            border: "1px solid var(--border-strong)",
             borderRadius: "var(--radius-lg)",
-            boxShadow: "var(--shadow-lg)",
+            boxShadow: "var(--shadow-lg), 0 0 0 1px rgba(255,255,255,0.04)",
             zIndex: 200,
             overflow: "hidden",
-            animation: "slideUp 150ms var(--ease)",
+            animation: "modalScaleUp var(--dur-base) var(--ease-spring)",
           }}
         >
           {/* Header */}
@@ -112,20 +114,26 @@ export default function NotificationBell() {
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              padding: "14px 16px",
+              padding: "14px 18px",
               borderBottom: "1px solid var(--border)",
+              background: "var(--surface-2)",
             }}
           >
-            <div style={{ fontWeight: 700, color: "var(--text-primary)", fontSize: 14 }}>
-              🔔 Notifications {unread > 0 && <span style={{ color: "var(--brand-500)", fontSize: 12 }}>({unread} non lues)</span>}
+            <div style={{ display: "flex", alignItems: "center", gap: 8, fontWeight: 700, color: "var(--text-primary)", fontSize: 13.5 }}>
+              <Bell size={15} strokeWidth={2} style={{ color: "var(--brand-400)" }} />
+              <span>Notifications</span>
+              {unread > 0 && (
+                <span style={{ color: "var(--brand-400)", fontSize: 12, fontWeight: 600 }}>({unread})</span>
+              )}
             </div>
             {unread > 0 && (
               <button
                 className="btn btn-ghost btn-sm"
-                style={{ fontSize: 11 }}
+                style={{ fontSize: 11, padding: "3px 8px", gap: 4 }}
                 onClick={markAll}
               >
-                Tout lire
+                <CheckCheck size={13} strokeWidth={2} />
+                <span>Tout marquer lu</span>
               </button>
             )}
           </div>
@@ -133,9 +141,9 @@ export default function NotificationBell() {
           {/* List */}
           <div style={{ maxHeight: 380, overflowY: "auto" }}>
             {notifs.length === 0 ? (
-              <div style={{ padding: "32px 16px", textAlign: "center", color: "var(--text-muted)", fontSize: 13 }}>
-                <div style={{ fontSize: 32, marginBottom: 8 }}>🔕</div>
-                Aucune notification
+              <div style={{ padding: "40px 16px", textAlign: "center", color: "var(--text-muted)", fontSize: 13 }}>
+                <BellOff size={28} strokeWidth={1.6} style={{ margin: "0 auto 10px", color: "var(--text-dim)", display: "block" }} />
+                <span>Aucune notification pour le moment</span>
               </div>
             ) : (
               notifs.map((n) => (
@@ -145,30 +153,30 @@ export default function NotificationBell() {
                   style={{
                     display: "flex",
                     gap: 12,
-                    padding: "12px 16px",
+                    padding: "13px 18px",
                     borderBottom: "1px solid var(--border)",
-                    background: n.read ? "transparent" : "rgba(99,102,241,0.06)",
+                    background: n.read ? "transparent" : "rgba(99, 102, 241, 0.05)",
                     cursor: n.read ? "default" : "pointer",
-                    transition: "background 150ms",
+                    transition: "background var(--dur-fast) var(--ease-smooth)",
                   }}
                 >
-                  <div
-                    style={{
-                      width: 8, height: 8,
-                      borderRadius: "50%",
-                      background: n.read ? "var(--border)" : "var(--brand-500)",
-                      flexShrink: 0,
-                      marginTop: 6,
-                      boxShadow: n.read ? "none" : "0 0 6px var(--brand-glow)",
-                    }}
-                  />
+                  <div style={{ marginTop: 3, flexShrink: 0 }}>
+                    <CircleDot
+                      size={12}
+                      strokeWidth={2.4}
+                      style={{
+                        color: n.read ? "var(--text-dim)" : "var(--brand-400)",
+                        filter: n.read ? "none" : "drop-shadow(0 0 4px var(--brand-glow))",
+                      }}
+                    />
+                  </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     {n.livraison?.reference && (
-                      <div style={{ fontSize: 11, fontFamily: "monospace", color: "var(--brand-500)", marginBottom: 2 }}>
+                      <div style={{ fontSize: 11, fontFamily: "var(--font-mono)", color: "var(--brand-400)", marginBottom: 2, fontWeight: 600 }}>
                         {n.livraison.reference}
                       </div>
                     )}
-                    <div style={{ fontSize: 13, color: n.read ? "var(--text-secondary)" : "var(--text-primary)", lineHeight: 1.4 }}>
+                    <div style={{ fontSize: 13, color: n.read ? "var(--text-secondary)" : "var(--text-primary)", lineHeight: 1.45 }}>
                       {n.message}
                     </div>
                     <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 4 }}>
