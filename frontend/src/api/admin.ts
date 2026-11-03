@@ -112,6 +112,9 @@ export const adminApi = {
   adminSetDisponibilite: (id: string, value: Disponibilite | string): Promise<void> =>
     request<void>(`/admin/livreurs/${id}/disponibilite?value=${value}`, { method: "PUT" }),
 
+  adminActivateLivreur: (id: string): Promise<void> =>
+    request<void>(`/admin/livreurs/${id}/activate`, { method: "PUT" }),
+
   adminDeactivateLivreur: (id: string): Promise<void> =>
     request<void>(`/admin/livreurs/${id}/desactivate`, { method: "PUT" }),
 

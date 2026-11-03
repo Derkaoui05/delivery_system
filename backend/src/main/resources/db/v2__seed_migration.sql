@@ -1,9 +1,0 @@
-INSERT INTO users (id, email, password_hash, role, active, created_at)
-VALUES (
-           UUID(),
-           'admin@livraison.com',
-           'yasserder78',
-           'ADMIN',
-           TRUE,
-           NOW()
-       );

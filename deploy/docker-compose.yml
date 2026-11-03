@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: livraison-db
+    restart: always
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-livraisonProject}
+      MYSQL_USER: ${DB_USERNAME:-livraison_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-SecretDbPass2026!}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-RootDbPass2026!}
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./backups:/var/backups/mysql
+    networks:
+      - livraison-network
+
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: livraison-backend
+    restart: always
+    depends_on:
+      - db
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_URL: jdbc:mysql://db:3306/${DB_NAME:-livraisonProject}?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false&characterEncoding=UTF-8&serverTimezone=UTC
+      DB_USERNAME: ${DB_USERNAME:-livraison_user}
+      DB_PASSWORD: ${DB_PASSWORD:-SecretDbPass2026!}
+      JWT_SECRET: ${JWT_SECRET:-R3AL_PR0D_JWT_S3CR3T_KEY_REPLACE_WITH_OPENSSL_RAND_BASE64_48_CHARS!}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-https://livraison.votredomaine.com}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+    networks:
+      - livraison-network
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    container_name: livraison-frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - livraison-network
+
+volumes:
+  db_data:
+
+networks:
+  livraison-network:
+    driver: bridge
+

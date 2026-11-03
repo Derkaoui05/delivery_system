@@ -148,11 +148,10 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleDeactivateLivreur = async (id: string) => {
-    if (!confirm("Désactiver ce livreur ?")) return;
-    setActionLoading(id);
+  const handleToggleLivreur = async (l: Livreur) => {
+    setActionLoading(l.id);
     try {
-      await api.adminDeactivateLivreur(id);
+      l.active ? await api.adminDeactivateLivreur(l.id) : await api.adminActivateLivreur(l.id);
       await loadData();
     } finally {
       setActionLoading(null);
@@ -590,15 +589,13 @@ export default function AdminDashboard() {
                           <Edit3 size={13} strokeWidth={1.8} />
                           <span>Modifier</span>
                         </button>
-                        {d.active && (
-                          <button
-                            className="btn btn-danger btn-sm"
-                            onClick={() => handleDeactivateLivreur(d.id)}
-                            disabled={actionLoading === d.id}
-                          >
-                            Désactiver
-                          </button>
-                        )}
+                        <button
+                          className={`btn ${d.active ? "btn-danger" : "btn-success"} btn-sm`}
+                          onClick={() => handleToggleLivreur(d)}
+                          disabled={actionLoading === d.id}
+                        >
+                          {d.active ? "Désactiver" : "Activer"}
+                        </button>
                       </div>
                     </td>
                   </tr>

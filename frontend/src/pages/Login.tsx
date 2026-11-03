@@ -8,9 +8,6 @@ import {
   ArrowRight,
   CheckCircle2,
   AlertCircle,
-  Shield,
-  Building2,
-  Bike,
 } from "lucide-react";
 import { api } from "../api";
 import { useAuth } from "../context/AuthContext";
@@ -18,8 +15,8 @@ import ForgotPasswordModal from "../components/ForgotPasswordModal";
 import RegisterFournisseurModal from "../components/RegisterFournisseurModal";
 
 export default function Login() {
-  const [email, setEmail] = useState("admin@livraison.com");
-  const [password, setPassword] = useState("Admin1234!");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
   const [loading, setLoading] = useState(false);
@@ -43,17 +40,6 @@ export default function Login() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const demoAccounts = [
-    { label: "Admin", email: "admin@livraison.com", defaultPass: "Admin1234!", color: "var(--brand-400)", icon: Shield },
-    { label: "Fournisseur", email: "fournisseur@livraison.com", defaultPass: "Fournisseur1234!", color: "var(--emerald-400)", icon: Building2 },
-    { label: "Livreur", email: "livreur@livraison.com", defaultPass: "Livreur1234!", color: "var(--amber-400)", icon: Bike },
-  ];
-
-  const handleSelectDemo = (acc: typeof demoAccounts[0]) => {
-    setEmail(acc.email);
-    setPassword(acc.defaultPass);
   };
 
   return (
@@ -172,35 +158,6 @@ export default function Login() {
           >
             Créer un compte
           </button>
-        </div>
-
-        {/* Demo shortcuts */}
-        <div className="divider" style={{ margin: "22px 0 16px" }} />
-        <div style={{ fontSize: 11, color: "var(--text-dim)", marginBottom: 12, textAlign: "center", fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase" }}>
-          Accès rapide de démonstration
-        </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
-          {demoAccounts.map((acc) => {
-            const Icon = acc.icon;
-            return (
-              <button
-                key={acc.email}
-                type="button"
-                className="btn btn-ghost btn-sm"
-                style={{
-                  fontSize: 11.5,
-                  padding: "7px 6px",
-                  borderColor: "var(--border)",
-                  color: "var(--text-secondary)",
-                  gap: 6,
-                }}
-                onClick={() => handleSelectDemo(acc)}
-              >
-                <Icon size={13} strokeWidth={2} style={{ color: acc.color }} />
-                <span>{acc.label}</span>
-              </button>
-            );
-          })}
         </div>
       </div>
 

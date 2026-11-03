@@ -1,0 +1,37 @@
+[Unit]
+Description=Backend Spring Boot - Livraison Manager
+After=syslog.target network.target mysql.service
+Wants=mysql.service
+
+[Service]
+Type=simple
+User=livraison
+Group=livraison
+WorkingDirectory=/opt/livraison/backend
+
+# Fichier contenant les secrets et variables d'environnement de production (chmod 600)
+EnvironmentFile=/etc/livraison/livraison.env
+
+ExecStart=/usr/bin/java \
+    -Dspring.profiles.active=prod \
+    -Xms256m \
+    -Xmx512m \
+    -jar /opt/livraison/backend/backend-0.0.1-SNAPSHOT.jar
+
+Restart=always
+RestartSec=10
+SuccessExitStatus=143
+
+# Durcissement de sécurité systemd
+ProtectSystem=full
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=livraison-backend
+
+[Install]
+WantedBy=multi-user.target
+

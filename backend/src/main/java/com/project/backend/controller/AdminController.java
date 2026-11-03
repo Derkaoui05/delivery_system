@@ -170,6 +170,12 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
 
+    @PutMapping("/livreurs/{id}/activate")
+    public ResponseEntity<Void> activateLivreur(@PathVariable UUID id){
+        livreurService.setActive(id, true);
+        return ResponseEntity.noContent().build();
+    }
+
     @PutMapping("/livreurs/{id}/desactivate")
     public ResponseEntity<Void> desactivateLivreur(@PathVariable UUID id){
         livreurService.setActive(id, false);

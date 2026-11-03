@@ -1,0 +1,12 @@
+[Unit]
+Description=Sauvegarde quotidienne MySQL pour Livraison Manager
+After=mysql.service
+
+[Service]
+Type=oneshot
+User=root
+EnvironmentFile=/etc/livraison/livraison.env
+ExecStart=/opt/livraison/scripts/backup-db.sh
+StandardOutput=journal
+StandardError=journal
+

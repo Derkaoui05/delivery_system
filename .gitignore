@@ -1,0 +1,53 @@
+# ── Java / Maven ──────────────────────────────────────────────────────────────
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.logs
+.mvn/wrapper/maven-wrapper.jar
+
+# ── Spring Boot ────────────────────────────────────────────────────────────────
+backend/src/main/resources/application-local.properties
+backend/src/main/resources/application-prod.properties.bak
+
+# ── Node / npm / pnpm ─────────────────────────────────────────────────────────
+node_modules/
+frontend/dist/
+frontend/.vite/
+.pnp
+.pnp.js
+
+# ── IDEs ──────────────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.iml
+*.iws
+.classpath
+.project
+.settings/
+
+# ── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ── Secrets / environnement ───────────────────────────────────────────────────
+# Les templates sont commitables, PAS les vraies valeurs
+deploy/env/*.env
+!deploy/env/*.env.template
+*.env
+!*.env.template
+.env.local
+.env.*.local
+
+# ── Logs ──────────────────────────────────────────────────────────────────────
+*.log
+logs/
+
+# ── Sauvegardes / temp ────────────────────────────────────────────────────────
+*.bak
+*.tmp
+*.swp
+*~
+
